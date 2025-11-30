@@ -278,7 +278,7 @@ const EventPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-32">
+    <div className="min-h-screen bg-white pb-32 overflow-x-hidden">
       <Navbar />
 
       {/* Hero Banner */}
