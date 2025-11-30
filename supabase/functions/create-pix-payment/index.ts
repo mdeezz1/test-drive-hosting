@@ -12,6 +12,7 @@ interface PaymentRequest {
   customerEmail: string;
   customerCpf: string;
   customerPhone: string;
+  eventId?: string;
   items: Array<{
     name: string;
     quantity: number;
@@ -145,9 +146,9 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { amount, customerName, customerEmail, customerCpf, customerPhone, items }: PaymentRequest = await req.json();
+    const { amount, customerName, customerEmail, customerCpf, customerPhone, eventId, items }: PaymentRequest = await req.json();
 
-    console.log('Creating PIX payment:', { amount, customerName, customerEmail, itemsCount: items.length });
+    console.log('Creating PIX payment:', { amount, customerName, customerEmail, eventId, itemsCount: items.length });
 
     // Create Basic Auth header
     const credentials = btoa(`${publicKey}:${secretKey}`);
@@ -274,7 +275,8 @@ serve(async (req) => {
         customer_phone: customerPhone.replace(/\D/g, ''),
         items: items,
         total_amount: amount,
-        status: 'pending'
+        status: 'pending',
+        event_id: eventId || null
       });
 
     if (insertError) {

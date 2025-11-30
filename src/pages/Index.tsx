@@ -97,8 +97,9 @@ const Index = () => {
                 <Search className="h-5 w-5" />
               </button>
               
-              <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-3 md:px-4">
-                ENTRAR
+              <Button variant="outline" onClick={() => navigate("/meus-pedidos")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-3 md:px-4">
+                <Ticket className="h-4 w-4 mr-1 md:mr-2" />
+                MEUS INGRESSOS
               </Button>
               <img src="/brazil-flag.png" alt="Brasil" className="h-5 md:h-6 w-auto" />
             </div>
