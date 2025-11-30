@@ -21,14 +21,20 @@ export type Database = {
           created_at: string
           description: string | null
           event_date: string
+          event_map_url: string | null
           event_time: string
+          facebook_url: string | null
+          google_maps_embed: string | null
           id: string
+          instagram_url: string | null
           is_active: boolean
           location: string
           map_url: string | null
           name: string
+          opening_time: string | null
           slug: string
           updated_at: string
+          youtube_url: string | null
         }
         Insert: {
           banner_url?: string | null
@@ -36,14 +42,20 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date: string
+          event_map_url?: string | null
           event_time: string
+          facebook_url?: string | null
+          google_maps_embed?: string | null
           id?: string
+          instagram_url?: string | null
           is_active?: boolean
           location: string
           map_url?: string | null
           name: string
+          opening_time?: string | null
           slug: string
           updated_at?: string
+          youtube_url?: string | null
         }
         Update: {
           banner_url?: string | null
@@ -51,14 +63,20 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date?: string
+          event_map_url?: string | null
           event_time?: string
+          facebook_url?: string | null
+          google_maps_embed?: string | null
           id?: string
+          instagram_url?: string | null
           is_active?: boolean
           location?: string
           map_url?: string | null
           name?: string
+          opening_time?: string | null
           slug?: string
           updated_at?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -107,8 +125,10 @@ export type Database = {
       ticket_types: {
         Row: {
           available: number
+          batch: string | null
           color: string | null
           created_at: string
+          description: string | null
           event_id: string
           fee: number
           id: string
@@ -121,8 +141,10 @@ export type Database = {
         }
         Insert: {
           available?: number
+          batch?: string | null
           color?: string | null
           created_at?: string
+          description?: string | null
           event_id: string
           fee?: number
           id?: string
@@ -135,8 +157,10 @@ export type Database = {
         }
         Update: {
           available?: number
+          batch?: string | null
           color?: string | null
           created_at?: string
+          description?: string | null
           event_id?: string
           fee?: number
           id?: string
