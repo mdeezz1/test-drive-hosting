@@ -32,6 +32,8 @@ interface TicketViewProps {
   ticketIndex: number;
   totalTickets: number;
   eventData?: EventData;
+  useFixedCover?: boolean;
+  fixedCoverUrl?: string;
 }
 
 const TicketView = ({
@@ -46,6 +48,8 @@ const TicketView = ({
   ticketIndex,
   totalTickets,
   eventData,
+  useFixedCover = false,
+  fixedCoverUrl,
 }: TicketViewProps) => {
   const qrRef = useRef<HTMLCanvasElement>(null);
   const barcodeRef = useRef<SVGSVGElement>(null);
@@ -115,7 +119,7 @@ const TicketView = ({
   const eventDate = eventData?.date ? formatEventDate(eventData.date) : "";
   const eventTime = eventData?.time?.slice(0, 5) || "";
   const openingTime = eventData?.openingTime?.slice(0, 5) || eventTime;
-  const coverUrl = eventData?.coverUrl;
+  const coverUrl = useFixedCover ? fixedCoverUrl : eventData?.coverUrl;
 
   // Prepare a safe cover URL as Data URL to avoid CORS issues when generating PDFs
   useEffect(() => {
