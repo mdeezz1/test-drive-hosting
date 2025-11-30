@@ -18,6 +18,15 @@ interface SearchOrdersDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface EventData {
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  openingTime?: string;
+  coverUrl?: string;
+}
+
 const SearchOrdersDialog = ({ open, onOpenChange }: SearchOrdersDialogProps) => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
@@ -74,8 +83,33 @@ const SearchOrdersDialog = ({ open, onOpenChange }: SearchOrdersDialogProps) => 
         return;
       }
 
-      // Navigate to orders page with the found orders
-      navigate('/meus-pedidos', { state: { orders: data, searchQuery: searchValue } });
+      // Fetch event data for the first order with event_id
+      let eventData: EventData | undefined = undefined;
+      
+      // Find the first order with an event_id
+      const orderWithEvent = data.find(order => order.event_id);
+      
+      if (orderWithEvent?.event_id) {
+        const { data: eventResult, error: eventError } = await supabase
+          .from('events')
+          .select('name, location, event_date, event_time, opening_time, cover_url')
+          .eq('id', orderWithEvent.event_id)
+          .maybeSingle();
+        
+        if (!eventError && eventResult) {
+          eventData = {
+            name: eventResult.name,
+            location: eventResult.location,
+            date: eventResult.event_date,
+            time: eventResult.event_time,
+            openingTime: eventResult.opening_time || undefined,
+            coverUrl: eventResult.cover_url || undefined
+          };
+        }
+      }
+
+      // Navigate to orders page with the found orders and event data
+      navigate('/meus-pedidos', { state: { orders: data, searchQuery: searchValue, eventData } });
       onOpenChange(false);
       setSearchValue("");
     } catch (err) {

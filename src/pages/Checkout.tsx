@@ -35,6 +35,7 @@ interface CheckoutState {
   total: number;
   totalWithFees: number;
   eventSlug?: string;
+  eventId?: string;
   eventData?: EventData;
 }
 
@@ -78,7 +79,7 @@ const Checkout = () => {
     return null;
   }
 
-  const { items, total, totalWithFees, eventSlug, eventData } = checkoutState;
+  const { items, total, totalWithFees, eventSlug, eventId, eventData } = checkoutState;
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', {
@@ -159,6 +160,7 @@ const Checkout = () => {
           customerEmail: formData.email,
           customerCpf: formData.cpf.replace(/\D/g, ''),
           customerPhone: formData.celular.replace(/\D/g, ''),
+          eventId: eventId,
           items: items.map(item => ({
             name: `${item.section} - ${item.variant}`,
             quantity: item.quantity,

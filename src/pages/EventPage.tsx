@@ -220,6 +220,7 @@ const EventPage = () => {
         total: cartTotal,
         totalWithFees: cartTotalWithFees,
         eventSlug: slug,
+        eventId: event?.id,
         eventData: event ? {
           name: event.name,
           location: event.location,

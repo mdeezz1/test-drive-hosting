@@ -90,6 +90,7 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          event_id: string | null
           id: string
           items: Json
           status: string
@@ -103,6 +104,7 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          event_id?: string | null
           id?: string
           items: Json
           status?: string
@@ -116,6 +118,7 @@ export type Database = {
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          event_id?: string | null
           id?: string
           items?: Json
           status?: string
@@ -123,7 +126,15 @@ export type Database = {
           transaction_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticket_types: {
         Row: {
