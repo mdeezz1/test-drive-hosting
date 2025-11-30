@@ -464,8 +464,8 @@ const Ingressos = () => {
 
           <div className="bg-gray-100 rounded-lg p-6 md:p-8 space-y-6">
             <div>
-              <p className="font-bold text-blue-600 underline">HENRIQUE E JULIANO NATTAN- AHH VERÃO</p>
-              <p className="font-bold text-blue-600 underline">INFORMATIVO DO SHOW</p>
+              <p className="font-bold underline text-primary">HENRIQUE E JULIANO NATTAN- AHH VERÃO</p>
+              <p className="font-bold underline text-blue-600">INFORMATIVO DO SHOW</p>
               <p className="text-gray-600">_______________________________________________</p>
               <p className="text-gray-800"><strong>02 DE JANEIRO DE 2026</strong></p>
               <p className="text-gray-800"><strong>ARENA OPEN</strong></p>
