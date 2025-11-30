@@ -32,6 +32,19 @@ serve(async (req) => {
         });
       }
 
+      case "get_event": {
+        const { data: event, error } = await supabase
+          .from("events")
+          .select("*, ticket_types(*)")
+          .eq("id", data.id)
+          .single();
+
+        if (error) throw error;
+        return new Response(JSON.stringify({ success: true, event }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       case "create_event": {
         const { data: event, error } = await supabase
           .from("events")
@@ -42,9 +55,15 @@ serve(async (req) => {
             location: data.location,
             event_date: data.event_date,
             event_time: data.event_time,
+            opening_time: data.opening_time,
             banner_url: data.banner_url,
             cover_url: data.cover_url,
             map_url: data.map_url,
+            event_map_url: data.event_map_url,
+            instagram_url: data.instagram_url,
+            facebook_url: data.facebook_url,
+            youtube_url: data.youtube_url,
+            google_maps_embed: data.google_maps_embed,
             is_active: data.is_active ?? true,
           })
           .select()
@@ -66,9 +85,15 @@ serve(async (req) => {
             location: data.location,
             event_date: data.event_date,
             event_time: data.event_time,
+            opening_time: data.opening_time,
             banner_url: data.banner_url,
             cover_url: data.cover_url,
             map_url: data.map_url,
+            event_map_url: data.event_map_url,
+            instagram_url: data.instagram_url,
+            facebook_url: data.facebook_url,
+            youtube_url: data.youtube_url,
+            google_maps_embed: data.google_maps_embed,
             is_active: data.is_active,
             updated_at: new Date().toISOString(),
           })
@@ -101,10 +126,12 @@ serve(async (req) => {
             event_id: data.event_id,
             sector: data.sector,
             name: data.name,
+            description: data.description,
             price: data.price,
             fee: data.fee,
             available: data.available,
             color: data.color,
+            batch: data.batch,
             sort_order: data.sort_order,
             is_active: data.is_active ?? true,
           })
@@ -123,10 +150,12 @@ serve(async (req) => {
           .update({
             sector: data.sector,
             name: data.name,
+            description: data.description,
             price: data.price,
             fee: data.fee,
             available: data.available,
             color: data.color,
+            batch: data.batch,
             sort_order: data.sort_order,
             is_active: data.is_active,
             updated_at: new Date().toISOString(),
