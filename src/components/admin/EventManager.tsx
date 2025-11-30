@@ -163,6 +163,46 @@ const EventManager = () => {
     }
   };
 
+  const handleMigrateImage = async (currentUrl: string, type: 'banner' | 'cover' | 'map' | 'event_map') => {
+    if (!currentUrl) return;
+    
+    setUploading(type);
+    try {
+      // Download image from current URL
+      const response = await fetch(currentUrl);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      
+      const blob = await response.blob();
+      const fileExt = currentUrl.split('.').pop()?.split('?')[0] || 'jpg';
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(filePath, blob);
+
+      if (uploadError) throw uploadError;
+
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/event-images/${filePath}`;
+
+      const fieldMap = {
+        banner: 'banner_url',
+        cover: 'cover_url',
+        map: 'map_url',
+        event_map: 'event_map_url'
+      };
+
+      setEventForm(prev => ({ ...prev, [fieldMap[type]]: publicUrl }));
+      toast({ title: "Sucesso", description: "Imagem migrada para o Storage!" });
+    } catch (error) {
+      console.error("Error migrating image:", error);
+      toast({ title: "Erro", description: "Erro ao migrar imagem. Faça upload manual.", variant: "destructive" });
+    } finally {
+      setUploading(null);
+    }
+  };
+
   const handleSaveEvent = async () => {
     if (!eventForm.name || !eventForm.slug || !eventForm.location || !eventForm.event_date || !eventForm.event_time) {
       toast({ title: "Erro", description: "Preencha todos os campos obrigatórios", variant: "destructive" });
@@ -349,11 +389,20 @@ const EventManager = () => {
   }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const fieldMap: Record<string, string> = { banner: 'banner_url', cover: 'cover_url', map: 'map_url', event_map: 'event_map_url' };
+    const isTemporaryUrl = value && (value.includes('preview--') || value.includes('localhost') || value.startsWith('/'));
+    const isStorageUrl = value && value.includes('/storage/v1/object/public/event-images/');
 
     return (
       <div className="space-y-2">
         <Label className="text-slate-300">{label}</Label>
         <p className="text-xs text-slate-500">{description}</p>
+        
+        {isTemporaryUrl && (
+          <div className="bg-amber-900/30 border border-amber-700 rounded-lg p-2 text-xs text-amber-200">
+            ⚠️ URL temporária detectada - migre para o Storage permanente
+          </div>
+        )}
+        
         <div className="flex gap-2">
           <Input
             value={value}
@@ -368,6 +417,19 @@ const EventManager = () => {
             className="hidden"
             onChange={(e) => e.target.files?.[0] && handleUploadImage(e.target.files[0], type)}
           />
+          {value && !isStorageUrl && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => handleMigrateImage(value, type)}
+              disabled={uploading === type}
+              className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
+              title="Migrar para Storage"
+            >
+              {uploading === type ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Image className="h-4 w-4" />}
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"
@@ -381,7 +443,9 @@ const EventManager = () => {
         </div>
         {value && (
           <div className="mt-2 rounded-lg overflow-hidden border border-slate-600 max-w-xs">
-            <img src={value} alt={label} className="w-full h-auto" />
+            <img src={value} alt={label} className="w-full h-auto" onError={(e) => {
+              e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
+            }} />
           </div>
         )}
       </div>
