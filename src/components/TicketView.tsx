@@ -148,6 +148,7 @@ const TicketView = ({
               src={coverUrl} 
               alt={eventName}
               className="w-full h-full object-cover"
+              crossOrigin="anonymous"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
