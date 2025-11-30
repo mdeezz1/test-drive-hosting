@@ -69,11 +69,10 @@ const Index = () => {
   };
   const filteredEvents = events.filter(event => event.name.toLowerCase().includes(searchTerm.toLowerCase()) || event.location.toLowerCase().includes(searchTerm.toLowerCase()));
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-
   return <div className="min-h-screen bg-[#F5F0E8]">
       {/* Header */}
       <header className="shadow-sm sticky top-0 z-50 bg-black overflow-x-hidden">
-        <div className="w-full px-4 py-3 bg-black">
+        <div className="w-full py-3 bg-black px-0 mx-0">
           <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-3 max-w-full">
             {/* Logo */}
             <img alt="Guichê Web Logo" className="h-6 md:h-8 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
@@ -90,10 +89,7 @@ const Index = () => {
             {/* Mobile Search Icon + Login Button + Flag */}
             <div className="flex items-center gap-2 md:gap-2 ml-auto">
               {/* Mobile Search Icon */}
-              <button 
-                onClick={() => setMobileSearchOpen(!mobileSearchOpen)} 
-                className="md:hidden p-1.5 text-white hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
-              >
+              <button onClick={() => setMobileSearchOpen(!mobileSearchOpen)} className="md:hidden p-1.5 text-white hover:bg-gray-800 rounded-full transition-colors flex-shrink-0">
                 <Search className="h-4 w-4" />
               </button>
               
@@ -106,22 +102,13 @@ const Index = () => {
           </div>
 
           {/* Mobile Search Expanded */}
-          {mobileSearchOpen && (
-            <div className="mt-3 md:hidden animate-in slide-in-from-top-2 duration-200">
+          {mobileSearchOpen && <div className="mt-3 md:hidden animate-in slide-in-from-top-2 duration-200">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input 
-                  type="text" 
-                  placeholder="Faça sua pesquisa..." 
-                  value={searchTerm} 
-                  onChange={e => setSearchTerm(e.target.value)} 
-                  className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" 
-                  autoFocus
-                />
+                <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" autoFocus />
                 <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </header>
 
