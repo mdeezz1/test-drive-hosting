@@ -267,16 +267,13 @@ const Ingressos = () => {
       <Navbar />
 
       {/* Hero Banner */}
-      <div className="relative">
-        <div
-          className="relative w-full h-[280px] md:h-[420px] bg-no-repeat bg-center mt-16"
-          style={{
-            backgroundImage: `url('${eventData.cover}')`,
-            backgroundSize: 'cover'
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-white pointer-events-none"></div>
-        </div>
+      <div className="relative mt-16">
+        <img
+          src={eventData.cover}
+          alt={eventData.name}
+          className="w-full h-auto object-contain"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-white pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
