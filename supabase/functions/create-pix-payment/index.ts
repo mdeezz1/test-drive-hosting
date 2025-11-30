@@ -49,6 +49,32 @@ serve(async (req) => {
     // Build description from items
     const description = items.map(item => `${item.quantity}x ${item.name}`).join(', ');
 
+    // Build request body
+    const requestBody = {
+      Amount: Math.round(amount * 100), // Convert to cents
+      PaymentMethod: 'pix',
+      ExternalId: transactionId,
+      Description: description.substring(0, 255),
+      Customer: {
+        Name: customerName,
+        Email: customerEmail,
+        Document: {
+          Type: 'cpf',
+          Number: customerCpf,
+        },
+        Phone: customerPhone,
+      },
+      Pix: {
+        ExpiresIn: 1800, // 30 minutes in seconds
+      },
+      Metadata: {
+        source: 'guicheweb',
+        event: 'ahh-verao'
+      }
+    };
+
+    console.log('Request body:', JSON.stringify(requestBody));
+
     // Call FreePay API
     const freePayResponse = await fetch('https://api.freepaybrasil.com/v1/payment-transaction/create', {
       method: 'POST',
@@ -56,34 +82,24 @@ serve(async (req) => {
         'Authorization': `Basic ${credentials}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        Amount: Math.round(amount * 100), // Convert to cents
-        PaymentMethod: 'pix',
-        ExternalId: transactionId,
-        Description: description.substring(0, 255),
-        Customer: {
-          Name: customerName,
-          Email: customerEmail,
-          Document: {
-            Type: 'cpf',
-            Number: customerCpf,
-          },
-          Phone: customerPhone,
-        },
-        Pix: {
-          ExpiresIn: 1800, // 30 minutes in seconds
-        },
-        Metadata: {
-          source: 'guicheweb',
-          event: 'ahh-verao'
-        }
-      }),
+      body: JSON.stringify(requestBody),
     });
 
-    const freePayData = await freePayResponse.json();
-
     console.log('FreePay response status:', freePayResponse.status);
-    console.log('FreePay response data:', JSON.stringify(freePayData));
+    
+    const responseText = await freePayResponse.text();
+    console.log('FreePay response text:', responseText);
+    
+    let freePayData;
+    try {
+      freePayData = responseText ? JSON.parse(responseText) : {};
+    } catch (parseError) {
+      console.error('Failed to parse response:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid response from payment provider', raw: responseText }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!freePayResponse.ok) {
       console.error('FreePay API error:', freePayData);
