@@ -239,7 +239,7 @@ const TicketView = ({
       </p>
 
       {/* Main Ticket Section */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-row gap-4 mb-6">
         {/* Event Banner with rounded border */}
         <div className="w-48 h-32 overflow-hidden rounded-lg border-2 border-gray-300 flex-shrink-0">
           {coverUrl ? (
@@ -274,7 +274,7 @@ const TicketView = ({
       </div>
 
       {/* Order Details and QR Code Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 border-t pt-4">
+      <div className="grid grid-cols-3 gap-4 mb-6 border-t pt-4">
         <div>
           <p className="font-bold mb-2">PEDIDO: {orderNumber}</p>
           <p className="text-sm">{ticketName}</p>
