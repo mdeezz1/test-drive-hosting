@@ -227,9 +227,21 @@ serve(async (req) => {
 
     if (!freePayResponse.ok || !freePayData.success) {
       console.error('FreePay API error:', freePayData);
+      
+      // Check for CPF validation errors
+      const errorMessage = JSON.stringify(freePayData).toLowerCase();
+      const isCpfError = errorMessage.includes('cpf') || 
+                         errorMessage.includes('document') || 
+                         errorMessage.includes('invalid') ||
+                         errorMessage.includes('customer');
+      
       return new Response(
-        JSON.stringify({ error: 'Failed to create PIX payment', details: freePayData }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: isCpfError ? 'CPF inválido ou incorreto' : 'Failed to create PIX payment', 
+          details: freePayData,
+          isCpfError 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
