@@ -296,7 +296,7 @@ const EventPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 -mt-20 md:-mt-16 lg:-mt-12 relative z-10">
+      <div className="w-full mx-auto px-4 -mt-20 md:-mt-16 lg:-mt-12 relative z-10">
         <div className="bg-white rounded-lg shadow-2xl p-4 md:p-6 lg:p-8 mb-8 max-w-5xl mx-auto my-[75px] md:my-8">
           <div className="flex flex-col lg:flex-row lg:gap-8 lg:items-start">
             <div className="flex justify-center lg:justify-start mb-6 lg:mb-0 lg:w-1/3">
@@ -569,7 +569,7 @@ const EventPage = () => {
       {/* Fixed Cart Bar - Green Style */}
       {getTotalItems() > 0 && (
         <div className="fixed bottom-0 left-0 right-0 shadow-2xl z-50" style={{ backgroundColor: 'rgba(29, 115, 28, 0.95)' }}>
-          <div className="container mx-auto px-4 py-3">
+          <div className="w-full mx-auto px-4 py-3">
             <div className="flex items-center justify-between max-w-5xl mx-auto">
               <div className="flex-1">
                 <p className="font-bold text-white text-sm mb-1">
