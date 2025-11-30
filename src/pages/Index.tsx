@@ -7,14 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, MapPin, Ticket, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 interface Event {
   id: string;
   name: string;
@@ -28,29 +21,24 @@ interface Event {
   is_active: boolean;
   show_on_home: boolean;
 }
-
 const Index = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
     fetchEvents();
   }, []);
-
   const fetchEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("is_active", true)
-        .eq("show_on_home", true)
-        .order("event_date", { ascending: true });
-
+      const {
+        data,
+        error
+      } = await supabase.from("events").select("*").eq("is_active", true).eq("show_on_home", true).order("event_date", {
+        ascending: true
+      });
       if (error) throw error;
-      
       const allEvents = data || [];
       // Featured events are those with banners
       setFeaturedEvents(allEvents.filter(e => e.banner_url));
@@ -61,18 +49,17 @@ const Index = () => {
       setLoading(false);
     }
   };
-
   const formatEventDate = (dateString: string) => {
     const date = new Date(dateString + "T00:00:00");
-    return format(date, "dd/MM/yyyy", { locale: ptBR });
+    return format(date, "dd/MM/yyyy", {
+      locale: ptBR
+    });
   };
-
   const extractCity = (location: string) => {
     // Extract city/state from location string
     const parts = location.split(" - ");
     return parts[parts.length - 1] || location;
   };
-
   const handleEventClick = (slug: string) => {
     if (slug === "ahh-verao-henrique-e-juliano-nattan") {
       navigate(`/${slug}`);
@@ -80,47 +67,26 @@ const Index = () => {
       navigate(`/e/${slug}`);
     }
   };
-
-  const filteredEvents = events.filter(event => 
-    event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <div className="min-h-screen bg-[#F5F0E8]">
+  const filteredEvents = events.filter(event => event.name.toLowerCase().includes(searchTerm.toLowerCase()) || event.location.toLowerCase().includes(searchTerm.toLowerCase()));
+  return <div className="min-h-screen bg-[#F5F0E8]">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-3 bg-black">
           <div className="flex items-center justify-between gap-4">
             {/* Logo */}
-            <img
-              src="https://s3.guicheweb.com.br/nova_marca/logogw_preta.png"
-              alt="Guichê Web Logo"
-              className="h-8 md:h-10 cursor-pointer"
-              onClick={() => navigate("/")}
-            />
+            <img alt="Guichê Web Logo" className="h-8 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
             {/* Search Bar */}
             <div className="flex-1 max-w-xl hidden md:block">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Faça sua pesquisa..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full"
-                />
+                <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
                 <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </div>
 
             {/* Login Button */}
-            <Button 
-              variant="outline" 
-              className="rounded-full border-gray-300 hover:bg-gray-100"
-              onClick={() => navigate("/gw-admin-2025")}
-            >
+            <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black">
               ENTRAR
             </Button>
           </div>
@@ -129,13 +95,7 @@ const Index = () => {
           <div className="mt-3 md:hidden">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Faça sua pesquisa..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full"
-              />
+              <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
               <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
           </div>
@@ -143,53 +103,32 @@ const Index = () => {
       </header>
 
       {/* Banner Carousel */}
-      {!loading && featuredEvents.length > 0 && (
-        <section className="relative">
-          <Carousel className="w-full" opts={{ loop: true }}>
+      {!loading && featuredEvents.length > 0 && <section className="relative">
+          <Carousel className="w-full" opts={{
+        loop: true
+      }}>
             <CarouselContent>
-              {featuredEvents.map((event) => (
-                <CarouselItem key={event.id}>
-                  <div 
-                    className="cursor-pointer"
-                    onClick={() => handleEventClick(event.slug)}
-                  >
-                    <img
-                      src={event.banner_url}
-                      alt={event.name}
-                      className="w-full h-auto object-cover"
-                    />
+              {featuredEvents.map(event => <CarouselItem key={event.id}>
+                  <div className="cursor-pointer" onClick={() => handleEventClick(event.slug)}>
+                    <img src={event.banner_url} alt={event.name} className="w-full h-auto object-cover" />
                   </div>
-                </CarouselItem>
-              ))}
+                </CarouselItem>)}
             </CarouselContent>
             <CarouselPrevious className="left-4 bg-white/80 hover:bg-white" />
             <CarouselNext className="right-4 bg-white/80 hover:bg-white" />
           </Carousel>
-        </section>
-      )}
+        </section>}
 
       {/* Featured Events Section (3 cards) */}
-      {!loading && featuredEvents.length > 0 && (
-        <section className="container mx-auto px-4 py-8">
+      {!loading && featuredEvents.length > 0 && <section className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredEvents.slice(0, 3).map((event) => (
-              <div
-                key={event.id}
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer group"
-                onClick={() => handleEventClick(event.slug)}
-              >
+            {featuredEvents.slice(0, 3).map(event => <div key={event.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer group" onClick={() => handleEventClick(event.slug)}>
                 <div className="aspect-[4/5] overflow-hidden">
-                  <img
-                    src={event.cover_url || event.banner_url}
-                    alt={event.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src={event.cover_url || event.banner_url} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
-        </section>
-      )}
+        </section>}
 
       {/* Events List Section */}
       <section className="container mx-auto px-4 py-8">
@@ -197,21 +136,16 @@ const Index = () => {
           Escolha um Evento
         </h2>
 
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden shadow">
+        {loading ? <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <div key={i} className="bg-white rounded-xl overflow-hidden shadow">
                 <Skeleton className="aspect-square bg-gray-200" />
                 <div className="p-3 space-y-2">
                   <Skeleton className="h-3 w-1/2 bg-gray-200" />
                   <Skeleton className="h-4 w-full bg-gray-200" />
                   <Skeleton className="h-3 w-2/3 bg-gray-200" />
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="text-center py-16">
+              </div>)}
+          </div> : filteredEvents.length === 0 ? <div className="text-center py-16">
             <Ticket className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
               {searchTerm ? "Nenhum evento encontrado" : "Nenhum evento disponível"}
@@ -219,28 +153,13 @@ const Index = () => {
             <p className="text-gray-500">
               {searchTerm ? "Tente outra pesquisa" : "Volte em breve para conferir novos eventos!"}
             </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition-all cursor-pointer group"
-                onClick={() => handleEventClick(event.slug)}
-              >
+          </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {filteredEvents.map(event => <div key={event.id} className="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition-all cursor-pointer group" onClick={() => handleEventClick(event.slug)}>
                 {/* Event Image */}
                 <div className="aspect-square overflow-hidden relative">
-                  {event.cover_url || event.banner_url ? (
-                    <img
-                      src={event.cover_url || event.banner_url}
-                      alt={event.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                  {event.cover_url || event.banner_url ? <img src={event.cover_url || event.banner_url} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" /> : <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
                       <Ticket className="h-12 w-12 text-white/70" />
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* Event Info */}
@@ -255,21 +174,15 @@ const Index = () => {
                     {formatEventDate(event.event_date)}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
       </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <img
-              src="https://s3.guicheweb.com.br/nova_marca/logogw_branca.png"
-              alt="Guichê Web Logo"
-              className="h-10"
-            />
+            <img src="https://s3.guicheweb.com.br/nova_marca/logogw_branca.png" alt="Guichê Web Logo" className="h-10" />
             
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
@@ -296,8 +209,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
