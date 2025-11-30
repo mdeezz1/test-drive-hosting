@@ -225,6 +225,45 @@ const MeusPedidos = () => {
     );
   };
 
+  const copyQrCanvasToClone = async (
+    original: HTMLDivElement,
+    clone: HTMLDivElement
+  ) => {
+    const originalCanvas = original.querySelector("canvas") as
+      | HTMLCanvasElement
+      | null;
+    const cloneCanvas = clone.querySelector("canvas") as
+      | HTMLCanvasElement
+      | null;
+
+    if (!originalCanvas || !cloneCanvas) return;
+
+    try {
+      const dataUrl = originalCanvas.toDataURL("image/png");
+
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const ctx = cloneCanvas.getContext("2d");
+          if (ctx) {
+            cloneCanvas.width = img.width;
+            cloneCanvas.height = img.height;
+            ctx.clearRect(0, 0, cloneCanvas.width, cloneCanvas.height);
+            ctx.drawImage(img, 0, 0, cloneCanvas.width, cloneCanvas.height);
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = dataUrl;
+        if (img.complete) {
+          resolve();
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao copiar QR code para o clone:", error);
+    }
+  };
+
   const generatePDF = async (order: Order, ticketIndex: number) => {
     setIsGeneratingPdf(true);
     
@@ -251,6 +290,8 @@ const MeusPedidos = () => {
         ticketRoot.style.maxWidth = "100%";
         ticketRoot.style.width = "100%";
       }
+
+      await copyQrCanvasToClone(ticketElement, clone);
 
       await inlineTicketImages(clone);
       await waitForImagesToLoad(clone);
@@ -288,7 +329,23 @@ const MeusPedidos = () => {
       const y = margin;
 
       pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-      pdf.save(`ingresso-${order.transaction_id}-${ticketIndex + 1}.pdf`);
+
+      const activeEventData = resolvedEventData ?? eventData;
+      const coverSrc = activeEventData?.coverUrl;
+
+      if (coverSrc && coverSrc.startsWith("data:")) {
+        try {
+          const format = coverSrc.startsWith("data:image/png") ? "PNG" : "JPEG";
+          const coverWidthMm = 60;
+          const coverHeightMm = 40;
+          const coverX = margin;
+          const coverY = margin + 25;
+
+          pdf.addImage(coverSrc, format as any, coverX, coverY, coverWidthMm, coverHeightMm);
+        } catch (error) {
+          console.error("Erro ao adicionar capa no PDF:", error);
+        }
+      }
       
       toast.success("PDF gerado com sucesso!");
     } catch (err) {
@@ -338,6 +395,8 @@ const MeusPedidos = () => {
           ticketRoot.style.width = "100%";
         }
 
+        await copyQrCanvasToClone(ticketElement, clone);
+
         await inlineTicketImages(clone);
         await waitForImagesToLoad(clone);
 
@@ -366,6 +425,23 @@ const MeusPedidos = () => {
           pdf.addPage();
         }
         pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+        const activeEventData = resolvedEventData ?? eventData;
+        const coverSrc = activeEventData?.coverUrl;
+
+        if (coverSrc && coverSrc.startsWith("data:")) {
+          try {
+            const format = coverSrc.startsWith("data:image/png") ? "PNG" : "JPEG";
+            const coverWidthMm = 60;
+            const coverHeightMm = 40;
+            const coverX = margin;
+            const coverY = margin + 25;
+
+            pdf.addImage(coverSrc, format as any, coverX, coverY, coverWidthMm, coverHeightMm);
+          } catch (error) {
+            console.error("Erro ao adicionar capa no PDF (todos):", error);
+          }
+        }
       }
 
       pdf.save(`ingressos-${order.transaction_id}.pdf`);
