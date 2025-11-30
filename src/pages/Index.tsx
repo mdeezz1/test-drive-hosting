@@ -78,7 +78,7 @@ const Index = () => {
 
             {/* Search Bar */}
             <div className="flex-1 max-w-xl hidden md:block">
-              <div className="relative">
+              <div className="relative bg-black">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
                 <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
