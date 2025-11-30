@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import TicketView from "@/components/TicketView";
 import SearchOrdersDialog from "@/components/SearchOrdersDialog";
 import { supabase } from "@/integrations/supabase/client";
+import guichewebTicketCover from "@/assets/guicheweb-ticket-cover.png";
 
 interface OrderItem {
   name: string;
@@ -264,6 +265,41 @@ const MeusPedidos = () => {
     }
   };
 
+  let fixedCoverDataUrl: string | null = null;
+
+  const getFixedCoverDataUrl = async (): Promise<string | null> => {
+    if (fixedCoverDataUrl) return fixedCoverDataUrl;
+
+    try {
+      const response = await fetch(guichewebTicketCover);
+      if (!response.ok) return null;
+
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      const dataUrl = await new Promise<string | null>((resolve) => {
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            resolve(reader.result);
+          } else {
+            resolve(null);
+          }
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+
+      if (dataUrl) {
+        fixedCoverDataUrl = dataUrl;
+      }
+
+      return dataUrl;
+    } catch (error) {
+      console.error("Erro ao carregar capa fixa do PDF:", error);
+      return null;
+    }
+  };
+
   const generatePDF = async (order: Order, ticketIndex: number) => {
     setIsGeneratingPdf(true);
     
@@ -313,8 +349,26 @@ const MeusPedidos = () => {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
+
+      const fixedCover = await getFixedCoverDataUrl();
+      let coverHeightMm = 0;
+
+      if (fixedCover) {
+        try {
+          const coverWidthMm = 60;
+          coverHeightMm = 40;
+          const coverX = (pageWidth - coverWidthMm) / 2;
+          const coverY = margin;
+
+          pdf.addImage(fixedCover, "PNG", coverX, coverY, coverWidthMm, coverHeightMm);
+        } catch (error) {
+          console.error("Erro ao adicionar capa fixa no PDF:", error);
+        }
+      }
+
+      const topY = margin + (coverHeightMm > 0 ? coverHeightMm + 5 : 0);
       const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - margin * 2;
+      const maxHeight = pageHeight - topY - margin;
 
       let imgWidth = maxWidth;
       let imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -326,26 +380,9 @@ const MeusPedidos = () => {
       }
 
       const x = (pageWidth - imgWidth) / 2;
-      const y = margin;
+      const y = topY;
 
-      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-
-      const activeEventData = resolvedEventData ?? eventData;
-      const coverSrc = activeEventData?.coverUrl;
-
-      if (coverSrc && coverSrc.startsWith("data:")) {
-        try {
-          const format = coverSrc.startsWith("data:image/png") ? "PNG" : "JPEG";
-          const coverWidthMm = 60;
-          const coverHeightMm = 40;
-          const coverX = margin;
-          const coverY = margin + 25;
-
-          pdf.addImage(coverSrc, format as any, coverX, coverY, coverWidthMm, coverHeightMm);
-        } catch (error) {
-          console.error("Erro ao adicionar capa no PDF:", error);
-        }
-      }
+      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
 
       pdf.save(`ingresso-${order.transaction_id}-${ticketIndex + 1}.pdf`);
       
@@ -363,18 +400,21 @@ const MeusPedidos = () => {
     
     try {
       const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
+      const fixedCover = await getFixedCoverDataUrl();
       const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - margin * 2;
 
-      const totalTickets = order.items.reduce((sum, item) => sum + item.quantity, 0);
+      const totalTickets = order.items.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
       
       for (let i = 0; i < totalTickets; i++) {
         const ticketElement = ticketRefs.current[`${order.id}-${i}`];
@@ -409,7 +449,11 @@ const MeusPedidos = () => {
 
         document.body.removeChild(clone);
 
-        const imgData = canvas.toDataURL('image/png');
+        const imgData = canvas.toDataURL("image/png");
+
+        const coverHeightMm = fixedCover ? 40 : 0;
+        const topY = margin + (coverHeightMm > 0 ? coverHeightMm + 5 : 0);
+        const maxHeight = pageHeight - topY - margin;
 
         let imgWidth = maxWidth;
         let imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -421,35 +465,38 @@ const MeusPedidos = () => {
         }
 
         const x = (pageWidth - imgWidth) / 2;
-        const y = margin;
+        const y = topY;
 
         if (i > 0) {
           pdf.addPage();
         }
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
 
-        const activeEventData = resolvedEventData ?? eventData;
-        const coverSrc = activeEventData?.coverUrl;
-
-        if (coverSrc && coverSrc.startsWith("data:")) {
+        if (fixedCover) {
           try {
-            const format = coverSrc.startsWith("data:image/png") ? "PNG" : "JPEG";
             const coverWidthMm = 60;
-            const coverHeightMm = 40;
-            const coverX = margin;
-            const coverY = margin + 25;
+            const coverX = (pageWidth - coverWidthMm) / 2;
+            const coverY = margin;
 
-            pdf.addImage(coverSrc, format as any, coverX, coverY, coverWidthMm, coverHeightMm);
+            pdf.addImage(
+              fixedCover,
+              "PNG",
+              coverX,
+              coverY,
+              coverWidthMm,
+              coverHeightMm
+            );
           } catch (error) {
-            console.error("Erro ao adicionar capa no PDF (todos):", error);
+            console.error("Erro ao adicionar capa fixa no PDF (todos):", error);
           }
         }
+
+        pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
       }
 
       pdf.save(`ingressos-${order.transaction_id}.pdf`);
       toast.success("Todos os ingressos foram gerados!");
     } catch (err) {
-      console.error('Error generating PDFs:', err);
+      console.error("Error generating PDFs:", err);
       toast.error("Erro ao gerar PDFs");
     } finally {
       setIsGeneratingPdf(false);
