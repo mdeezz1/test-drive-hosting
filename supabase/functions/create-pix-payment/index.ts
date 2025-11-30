@@ -18,6 +18,102 @@ interface PaymentRequest {
   }>;
 }
 
+// Function to send order to Utmify
+async function sendToUtmify(orderData: {
+  orderId: string;
+  status: 'waiting_payment' | 'paid' | 'refused' | 'refunded';
+  createdAt: string;
+  approvedDate: string | null;
+  refundedAt: string | null;
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    document: string;
+  };
+  products: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    priceInCents: number;
+  }>;
+  totalPriceInCents: number;
+  gatewayFeeInCents: number;
+}) {
+  const utmifyApiKey = Deno.env.get('UTMIFY_API_KEY');
+  
+  if (!utmifyApiKey) {
+    console.error('UTMIFY_API_KEY not configured');
+    return { success: false, error: 'Missing API key' };
+  }
+
+  const utmifyPayload = {
+    orderId: orderData.orderId,
+    platform: 'GuicheWeb',
+    paymentMethod: 'pix',
+    status: orderData.status,
+    createdAt: orderData.createdAt,
+    approvedDate: orderData.approvedDate,
+    refundedAt: orderData.refundedAt,
+    customer: {
+      name: orderData.customer.name,
+      email: orderData.customer.email,
+      phone: orderData.customer.phone,
+      document: orderData.customer.document,
+      country: 'BR'
+    },
+    products: orderData.products.map(p => ({
+      id: p.id,
+      name: p.name,
+      planId: null,
+      planName: null,
+      quantity: p.quantity,
+      priceInCents: p.priceInCents
+    })),
+    trackingParameters: {
+      src: null,
+      sck: null,
+      utm_source: null,
+      utm_campaign: null,
+      utm_medium: null,
+      utm_content: null,
+      utm_term: null
+    },
+    commission: {
+      totalPriceInCents: orderData.totalPriceInCents,
+      gatewayFeeInCents: orderData.gatewayFeeInCents,
+      userCommissionInCents: orderData.totalPriceInCents - orderData.gatewayFeeInCents
+    }
+  };
+
+  console.log('Sending to Utmify:', JSON.stringify(utmifyPayload));
+
+  try {
+    const response = await fetch('https://api.utmify.com.br/api-credentials/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-token': utmifyApiKey
+      },
+      body: JSON.stringify(utmifyPayload)
+    });
+
+    const responseText = await response.text();
+    console.log('Utmify response status:', response.status);
+    console.log('Utmify response:', responseText);
+
+    return { 
+      success: response.ok, 
+      status: response.status,
+      response: responseText 
+    };
+  } catch (error) {
+    console.error('Error sending to Utmify:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: errorMessage };
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -135,6 +231,34 @@ serve(async (req) => {
 
     // Generate QR code URL from the PIX code (we'll use a QR code API)
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(copiaCola)}`;
+
+    // Send waiting_payment notification to Utmify
+    const createdAtUTC = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const utmifyProducts = items.map((item, index) => ({
+      id: `ticket_${index}`,
+      name: item.name,
+      quantity: item.quantity,
+      priceInCents: Math.round(item.price * 100)
+    }));
+
+    const utmifyResult = await sendToUtmify({
+      orderId: freePayData.data?.id || transactionId,
+      status: 'waiting_payment',
+      createdAt: createdAtUTC,
+      approvedDate: null,
+      refundedAt: null,
+      customer: {
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone.replace(/\D/g, ''),
+        document: customerCpf.replace(/\D/g, '')
+      },
+      products: utmifyProducts,
+      totalPriceInCents: Math.round(amount * 100),
+      gatewayFeeInCents: Math.round(amount * 100 * 0.0299) // ~3% fee estimate
+    });
+
+    console.log('Utmify waiting_payment result:', utmifyResult);
 
     return new Response(
       JSON.stringify({

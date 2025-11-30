@@ -57,6 +57,18 @@ const Ingressos = () => {
     variants: TicketVariantWithFee[];
   }
   const ticketSectors: TicketSectorWithFee[] = [{
+    id: 'teste',
+    section: 'Área Teste',
+    description: 'Ingresso para testes - NÃO USAR EM PRODUÇÃO',
+    color: '#FF0000',
+    available: 100,
+    variants: [{
+      id: 'teste-inteira',
+      name: 'Inteira',
+      price: 2.50,
+      fee: 0.00
+    }]
+  }, {
     id: 'frontstage',
     section: 'Frontstage Open Food',
     description: 'Open Food: Massas, risotos e doces',
