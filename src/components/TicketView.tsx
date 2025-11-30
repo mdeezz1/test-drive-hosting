@@ -215,8 +215,8 @@ const TicketView = ({
       className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto"
       id={`ticket-${ticketIndex}`}
     >
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
+      {/* Header with Logo and Favorecido */}
+      <div className="flex justify-between items-start mb-4 gap-4">
         <div>
           <p className="text-sm text-gray-600">
             {format(paidDate, "dd/MM/yy, HH:mm", { locale: ptBR })}
@@ -224,6 +224,12 @@ const TicketView = ({
           <p className="text-sm text-gray-500">E-Ticket - Guichê Web</p>
         </div>
         <img src={guichewebLogoFull} alt="Guichê Web" className="h-10" />
+        <div className="text-right">
+          <p className="text-sm text-gray-600">Favorecido:</p>
+          <p className="font-bold text-green-600 text-sm">{customerName}</p>
+          <p className="text-xs text-gray-600">CPF: {formatCPF(customerCpf)}</p>
+          <p className="text-xs text-gray-600">{formatEmail(customerEmail)}</p>
+        </div>
       </div>
 
       {/* Event Title */}
@@ -234,8 +240,8 @@ const TicketView = ({
 
       {/* Main Ticket Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        {/* Event Banner */}
-        <div className="w-48 h-32 overflow-hidden rounded flex-shrink-0">
+        {/* Event Banner with rounded border */}
+        <div className="w-48 h-32 overflow-hidden rounded-lg border-2 border-gray-300 flex-shrink-0">
           {coverUrl ? (
             <img 
               src={safeCoverUrl || coverUrl} 
@@ -261,31 +267,14 @@ const TicketView = ({
           <p className="text-sm text-gray-600 mb-1">
             <strong>Abertura:</strong> {openingTime} <strong>Início:</strong> {eventTime}
           </p>
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-gray-600">
             Valor: R$ {ticketPrice.toFixed(2).replace('.', ',')}
           </p>
-
-          <div className="border-t pt-2 mt-2">
-            <p className="text-sm text-gray-600">Favorecido:</p>
-            <p className="font-bold text-green-600">{customerName}</p>
-            <p className="text-sm text-gray-600">CPF: {formatCPF(customerCpf)}</p>
-            <p className="text-sm text-gray-600">{formatEmail(customerEmail)}</p>
-          </div>
-        </div>
-
-        {/* QR Code and Order Info */}
-        <div className="text-right flex-shrink-0">
-          <p className="text-xs text-gray-600">Pedido: {orderNumber}</p>
-          <p className="text-xs text-gray-600">Código: {ticketCode}</p>
-          <p className="text-xs text-gray-600 mb-2">
-            Data da compra: {format(paidDate, "dd/MM/yyyy HH:mm", { locale: ptBR })}
-          </p>
-          <canvas ref={qrRef} className="ml-auto" />
         </div>
       </div>
 
-      {/* Order Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-6 border-t pt-4">
+      {/* Order Details and QR Code Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 border-t pt-4">
         <div>
           <p className="font-bold mb-2">PEDIDO: {orderNumber}</p>
           <p className="text-sm">{ticketName}</p>
@@ -301,6 +290,12 @@ const TicketView = ({
           <p className="text-sm">{customerName}</p>
           <p className="text-sm text-gray-600">CPF: {formatCPF(customerCpf)}</p>
           <p className="text-sm text-gray-600">{formatEmail(customerEmail)}</p>
+        </div>
+        {/* QR Code on the right */}
+        <div className="flex flex-col items-end justify-start">
+          <canvas ref={qrRef} className="ml-auto" />
+          <p className="text-xs text-gray-600 mt-2">Pedido: {orderNumber}</p>
+          <p className="text-xs text-gray-600">Código: {ticketCode}</p>
         </div>
       </div>
 
