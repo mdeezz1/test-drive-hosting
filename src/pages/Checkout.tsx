@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Check, ArrowRight, QrCode, Copy, Clock } from "lucide-react";
 import eventCover from "@/assets/event-cover.jpg";
+import guichewebLogo from "@/assets/guicheweb-logo.png";
 
 interface CartItem {
   id: string;
@@ -185,13 +186,10 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 py-4">
+      <header className="bg-black py-4">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center">
-            <span className="text-2xl font-bold">
-              <span className="text-gray-800">guichê</span>
-              <span className="text-green-500">web</span>
-            </span>
+            <img src={guichewebLogo} alt="Guichê Web" className="h-8" />
           </div>
         </div>
       </header>
@@ -287,6 +285,58 @@ const Checkout = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Order Summary Sidebar - Shows first on mobile */}
+              <div className="lg:col-span-1 order-first lg:order-last">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-4">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">Resumo do pedido</h3>
+                    
+                    <Separator className="mb-4" />
+                    
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="text-gray-800">{formatCurrency(total)}</span>
+                    </div>
+                    
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-gray-600">Taxa de serviço</span>
+                      <span className="text-gray-800">{formatCurrency(getTotalFees())}</span>
+                    </div>
+                    
+                    <Separator className="my-4" />
+                    
+                    <div className="flex justify-between font-bold text-lg mb-6">
+                      <span className="text-gray-800">Total</span>
+                      <span className="text-gray-800">{formatCurrency(totalWithFees)}</span>
+                    </div>
+                    
+                    {/* Cart Items */}
+                    <div className="space-y-4">
+                      {items.map((item, index) => (
+                        <div key={index} className="flex gap-3">
+                          <img 
+                            src={eventCover} 
+                            alt={item.name}
+                            className="w-16 h-16 rounded object-cover"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm text-gray-800">
+                              {item.section} - {item.variant}
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              {item.quantity}x {formatCurrency(item.price + item.fee)}
+                            </p>
+                            <p className="text-sm font-medium text-gray-800">
+                              {formatCurrency((item.price + item.fee) * item.quantity)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Personal Data Section */}
@@ -440,58 +490,6 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Order Summary Sidebar */}
-              <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-4">
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">Resumo do pedido</h3>
-                    
-                    <Separator className="mb-4" />
-                    
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-800">{formatCurrency(total)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600">Taxa de serviço</span>
-                      <span className="text-gray-800">{formatCurrency(getTotalFees())}</span>
-                    </div>
-                    
-                    <Separator className="my-4" />
-                    
-                    <div className="flex justify-between font-bold text-lg mb-6">
-                      <span className="text-gray-800">Total</span>
-                      <span className="text-gray-800">{formatCurrency(totalWithFees)}</span>
-                    </div>
-                    
-                    {/* Cart Items */}
-                    <div className="space-y-4">
-                      {items.map((item, index) => (
-                        <div key={index} className="flex gap-3">
-                          <img 
-                            src={eventCover} 
-                            alt={item.name}
-                            className="w-16 h-16 rounded object-cover"
-                          />
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm text-gray-800">
-                              {item.section} - {item.variant}
-                            </h4>
-                            <p className="text-xs text-gray-500">
-                              {item.quantity}x {formatCurrency(item.price + item.fee)}
-                            </p>
-                            <p className="text-sm font-medium text-gray-800">
-                              {formatCurrency((item.price + item.fee) * item.quantity)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -500,11 +498,10 @@ const Checkout = () => {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6 mt-8">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>
-            <span className="text-gray-800 font-semibold">guichê</span>
-            <span className="text-green-500 font-semibold">web</span>
-            {' '}- Todos os direitos reservados
-          </p>
+          <div className="flex items-center justify-center mb-1">
+            <img src={guichewebLogo} alt="Guichê Web" className="h-6" />
+          </div>
+          <p>Todos os direitos reservados</p>
           <p className="mt-1">Ambiente seguro para pagamento</p>
         </div>
       </footer>
