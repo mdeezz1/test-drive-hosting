@@ -121,7 +121,10 @@ const TicketView = ({
   const ticketPrice = items[0]?.price || totalAmount;
 
   return (
-    <div className="bg-white text-black p-6 max-w-4xl mx-auto" id={`ticket-${ticketIndex}`}>
+    <div
+      className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto transform scale-90 sm:scale-100 origin-top"
+      id={`ticket-${ticketIndex}`}
+    >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div>
@@ -140,7 +143,7 @@ const TicketView = ({
       </p>
 
       {/* Main Ticket Section */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
         {/* Event Banner */}
         <div className="w-48 h-32 overflow-hidden rounded flex-shrink-0">
           {coverUrl ? (
@@ -192,7 +195,7 @@ const TicketView = ({
       </div>
 
       {/* Order Details */}
-      <div className="grid grid-cols-2 gap-8 mb-6 border-t pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-6 border-t pt-4">
         <div>
           <p className="font-bold mb-2">PEDIDO: {orderNumber}</p>
           <p className="text-sm">{ticketName}</p>
