@@ -72,7 +72,7 @@ const Index = () => {
       {/* Header */}
       <header className="shadow-sm sticky top-0 z-50 bg-black">
         <div className="container mx-auto px-4 py-3 bg-black">
-          <div className="items-center justify-between flex flex-row gap-[16px] mx-[25px] px-[25px]">
+          <div className="items-center justify-between flex flex-row gap-[16px] mx-0 px-0">
             {/* Logo */}
             <img alt="Guichê Web Logo" className="h-8 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
@@ -107,11 +107,7 @@ const Index = () => {
 
       {/* Home Banner */}
       <section className="relative bg-black">
-        <img 
-          src="https://cdn.guicheweb.com.br/gw-bucket/banners/07-10-2025_12-03-15.jpg" 
-          alt="Banner" 
-          className="w-full max-h-[350px] md:max-h-[400px] object-contain" 
-        />
+        <img src="https://cdn.guicheweb.com.br/gw-bucket/banners/07-10-2025_12-03-15.jpg" alt="Banner" className="w-full max-h-[350px] md:max-h-[400px] object-contain" />
       </section>
 
       {/* Featured Events Section (3 cards) */}
