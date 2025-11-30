@@ -110,7 +110,7 @@ const Index = () => {
             <CarouselContent>
               {featuredEvents.map(event => <CarouselItem key={event.id}>
                   <div className="cursor-pointer" onClick={() => handleEventClick(event.slug)}>
-                    <img src={event.banner_url} alt={event.name} className="w-full h-auto object-cover" />
+                    <img src={event.banner_url} alt={event.name} className="w-full h-auto object-scale-down" />
                   </div>
                 </CarouselItem>)}
             </CarouselContent>
