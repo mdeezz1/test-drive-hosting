@@ -161,15 +161,17 @@ const Index = () => {
 
                 {/* Event Info */}
                 <div className="p-3 md:p-4">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                    {extractCity(event.location)}
-                  </p>
-                  <h3 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-2 mb-1 group-hover:text-orange-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-2 mb-2 group-hover:text-orange-600 transition-colors">
                     {event.name}
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    {formatEventDate(event.event_date)}
-                  </p>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                    <MapPin className="h-3 w-3 text-red-500" />
+                    <span>{extractCity(event.location)}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Ticket className="h-3 w-3 text-gray-400" />
+                    <span>{formatEventDate(event.event_date)}</span>
+                  </div>
                 </div>
               </div>)}
           </div>}
