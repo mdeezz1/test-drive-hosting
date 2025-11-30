@@ -110,7 +110,7 @@ const Index = () => {
             <CarouselContent>
               {featuredEvents.map(event => <CarouselItem key={event.id}>
                   <div className="cursor-pointer" onClick={() => handleEventClick(event.slug)}>
-                    <img src={event.banner_url} alt={event.name} className="w-full h-auto object-scale-down" />
+                    <img src={event.banner_url} alt={event.name} className="w-full h-[300px] md:h-[400px] lg:h-[450px] object-cover" />
                   </div>
                 </CarouselItem>)}
             </CarouselContent>
@@ -121,12 +121,14 @@ const Index = () => {
 
       {/* Featured Events Section (3 cards) */}
       {!loading && featuredEvents.length > 0 && <section className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredEvents.slice(0, 3).map(event => <div key={event.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer group" onClick={() => handleEventClick(event.slug)}>
-                <div className="aspect-[4/5] overflow-hidden">
-                  <img src={event.cover_url || event.banner_url} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-              </div>)}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl">
+              {featuredEvents.slice(0, 3).map(event => <div key={event.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer group w-[200px]" onClick={() => handleEventClick(event.slug)}>
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img src={event.cover_url || event.banner_url} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                </div>)}
+            </div>
           </div>
         </section>}
 
@@ -179,33 +181,75 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 mt-12 text-white bg-black">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <img alt="Guichê Web Logo" className="h-10" src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
+      <footer className="mt-12 text-white bg-black">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Institucional */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 italic">Institucional</h3>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li><a href="/" className="hover:text-white transition-colors">Home</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Nossa Marca</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+              </ul>
+            </div>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
-                <div className="bg-white text-black px-5 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 transition-colors">
-                  <div className="text-left">
-                    <div className="text-[10px] leading-tight">Disponível na</div>
-                    <div className="text-sm font-semibold">App Store</div>
-                  </div>
+            {/* Minha Conta */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 italic">Minha Conta</h3>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li><a href="#" className="hover:text-white transition-colors">Meus pedidos</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Alterar Senha</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Lembrar Senha</a></li>
+              </ul>
+            </div>
+            
+            {/* Ajuda */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 italic">Ajuda</h3>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li><a href="#" className="hover:text-white transition-colors">Dúvidas frequentes</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Termos e políticas</a></li>
+              </ul>
+            </div>
+            
+            {/* Badges and App */}
+            <div className="flex flex-col items-start lg:items-end gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-600 rounded-lg p-2 text-center">
+                  <div className="text-[8px] leading-tight">COMPRA</div>
+                  <div className="text-lg font-bold">100%</div>
+                  <div className="text-[8px] leading-tight">SEGURA</div>
+                  <div className="text-[6px] mt-1 bg-yellow-400 text-black px-1 rounded">SITE PROTEGIDO</div>
                 </div>
-              </a>
-              <a href="https://play.google.com" target="_blank" rel="noopener noreferrer">
-                <div className="bg-white text-black px-5 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 transition-colors">
-                  <div className="text-left">
-                    <div className="text-[10px] leading-tight">Disponível no</div>
-                    <div className="text-sm font-semibold">Google Play</div>
-                  </div>
+                <div className="bg-white rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[8px] text-black">ASSOCIADO</span>
+                  <div className="text-green-600 font-bold text-sm">ABRAPE</div>
                 </div>
-              </a>
+              </div>
+              
+              <div className="text-center lg:text-right">
+                <p className="text-xs text-gray-400 mb-2">COMPRE PELO APP</p>
+                <div className="flex gap-2">
+                  <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
+                    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-8 invert" />
+                  </a>
+                  <a href="https://play.google.com" target="_blank" rel="noopener noreferrer">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-8" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-            <p>© {new Date().getFullYear()} Guichê Web. Todos os direitos reservados.</p>
+        </div>
+        
+        {/* Bottom Footer */}
+        <div className="border-t border-gray-800 py-6">
+          <div className="container mx-auto px-4 text-center text-xs text-gray-400">
+            <p>Guichê Web Comercialização de Ingressos Ltda - CNPJ - 18.797.249/0001-35</p>
+            <p className="mt-1">Todos os preços e condições comerciais estão sujeitos a alteração comercial sem aviso prévio.</p>
+            <p className="mt-3">©Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
