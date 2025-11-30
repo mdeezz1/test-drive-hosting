@@ -53,6 +53,7 @@ interface Event {
   youtube_url: string;
   google_maps_embed: string;
   is_active: boolean;
+  show_on_home: boolean;
   created_at: string;
   ticket_types: TicketType[];
 }
@@ -88,6 +89,7 @@ const EventManager = () => {
     youtube_url: "",
     google_maps_embed: "",
     is_active: true,
+    show_on_home: true,
   });
 
   // Ticket form state
@@ -274,6 +276,7 @@ const EventManager = () => {
       banner_url: "", cover_url: "", map_url: "", event_map_url: "",
       instagram_url: "", facebook_url: "", youtube_url: "", google_maps_embed: "",
       is_active: true,
+      show_on_home: true,
     });
     setSelectedEvent(null);
     setEventTab("basic");
@@ -306,6 +309,7 @@ const EventManager = () => {
       youtube_url: event.youtube_url || "",
       google_maps_embed: event.google_maps_embed || "",
       is_active: event.is_active,
+      show_on_home: event.show_on_home ?? true,
     });
     setShowEventDialog(true);
   };
@@ -453,6 +457,10 @@ const EventManager = () => {
                   <div className="flex items-center gap-2 pt-2">
                     <Switch checked={eventForm.is_active} onCheckedChange={(checked) => setEventForm({ ...eventForm, is_active: checked })} />
                     <Label className="text-slate-300">Evento ativo (visível para compra)</Label>
+                  </div>
+                  <div className="flex items-center gap-2 pt-2">
+                    <Switch checked={eventForm.show_on_home} onCheckedChange={(checked) => setEventForm({ ...eventForm, show_on_home: checked })} />
+                    <Label className="text-slate-300">Exibir na página inicial</Label>
                   </div>
                 </TabsContent>
 

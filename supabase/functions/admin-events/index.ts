@@ -65,6 +65,7 @@ serve(async (req) => {
             youtube_url: data.youtube_url,
             google_maps_embed: data.google_maps_embed,
             is_active: data.is_active ?? true,
+            show_on_home: data.show_on_home ?? true,
           })
           .select()
           .single();
@@ -95,6 +96,7 @@ serve(async (req) => {
             youtube_url: data.youtube_url,
             google_maps_embed: data.google_maps_embed,
             is_active: data.is_active,
+            show_on_home: data.show_on_home,
             updated_at: new Date().toISOString(),
           })
           .eq("id", data.id)
