@@ -103,14 +103,14 @@ const Index = () => {
       </header>
 
       {/* Banner Carousel */}
-      {!loading && featuredEvents.length > 0 && <section className="relative">
+      {!loading && featuredEvents.length > 0 && <section className="relative bg-black">
           <Carousel className="w-full" opts={{
         loop: true
       }}>
             <CarouselContent>
               {featuredEvents.map(event => <CarouselItem key={event.id}>
                   <div className="cursor-pointer" onClick={() => handleEventClick(event.slug)}>
-                    <img src={event.banner_url} alt={event.name} className="w-full h-[300px] md:h-[400px] lg:h-[450px] object-cover" />
+                    <img src={event.banner_url} alt={event.name} className="w-full max-h-[350px] md:max-h-[400px] object-contain" />
                   </div>
                 </CarouselItem>)}
             </CarouselContent>
@@ -214,20 +214,13 @@ const Index = () => {
               </ul>
             </div>
             
-            {/* Badges and App */}
+            {/* Logo and App */}
             <div className="flex flex-col items-start lg:items-end gap-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-600 rounded-lg p-2 text-center">
-                  <div className="text-[8px] leading-tight">COMPRA</div>
-                  <div className="text-lg font-bold">100%</div>
-                  <div className="text-[8px] leading-tight">SEGURA</div>
-                  <div className="text-[6px] mt-1 bg-yellow-400 text-black px-1 rounded">SITE PROTEGIDO</div>
-                </div>
-                <div className="bg-white rounded-lg p-2 flex flex-col items-center">
-                  <span className="text-[8px] text-black">ASSOCIADO</span>
-                  <div className="text-green-600 font-bold text-sm">ABRAPE</div>
-                </div>
-              </div>
+              <img 
+                alt="Guichê Web Logo" 
+                className="h-10" 
+                src="https://s3.guicheweb.com.br/nova_marca/logogw.png" 
+              />
               
               <div className="text-center lg:text-right">
                 <p className="text-xs text-gray-400 mb-2">COMPRE PELO APP</p>
