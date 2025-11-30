@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { Menu, Home, User, HelpCircle, Search } from "lucide-react";
+import { Menu, Home, HelpCircle, Search } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useAuth } from "@/contexts/AuthContext";
-import UserMenuDialog from "./UserMenuDialog";
 import SearchOrdersDialog from "./SearchOrdersDialog";
 import { toast } from "sonner";
 
 const Navbar = () => {
-  const { user } = useAuth();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOrdersOpen, setSearchOrdersOpen] = useState(false);
 
   const handleHelpClick = () => {
@@ -65,15 +61,6 @@ const Navbar = () => {
                     <span className="text-base">Buscar Pedidos</span>
                   </button>
                   <button
-                    onClick={() => setUserMenuOpen(true)}
-                    className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors text-left w-full"
-                  >
-                    <User className="h-5 w-5" />
-                    <span className="text-base">
-                      {user ? `Olá, ${user.name || user.email}` : "Entre ou Cadastre-se"}
-                    </span>
-                  </button>
-                  <button
                     onClick={handleHelpClick}
                     className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors text-left w-full"
                   >
@@ -87,7 +74,6 @@ const Navbar = () => {
         </Sheet>
       </div>
 
-      <UserMenuDialog open={userMenuOpen} onOpenChange={setUserMenuOpen} />
       <SearchOrdersDialog open={searchOrdersOpen} onOpenChange={setSearchOrdersOpen} />
     </nav>
   );
