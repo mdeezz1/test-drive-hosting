@@ -4,10 +4,21 @@ import { CheckCircle, Search, Home } from "lucide-react";
 import guichewebLogo from "@/assets/guicheweb-logo.png";
 import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
 
+interface EventData {
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  openingTime?: string;
+  coverUrl?: string;
+}
+
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const transactionId = location.state?.transactionId;
+  const state = location.state as { transactionId?: string; eventData?: EventData } | null;
+  const transactionId = state?.transactionId;
+  const eventData = state?.eventData;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,7 +80,7 @@ const PaymentSuccess = () => {
           {/* Action Buttons */}
           <div className="space-y-3">
             <Button
-              onClick={() => navigate('/meus-pedidos', { state: { fromPayment: true, transactionId } })}
+              onClick={() => navigate('/meus-pedidos', { state: { fromPayment: true, transactionId, eventData } })}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-lg"
             >
               <Search className="h-5 w-5 mr-2" />
