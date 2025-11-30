@@ -85,10 +85,13 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Login Button */}
-            <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black">
-              ENTRAR
-            </Button>
+            {/* Login Button and Flag */}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black">
+                ENTRAR
+              </Button>
+              <img src="/brazil-flag.png" alt="Brasil" className="h-6 w-auto" />
+            </div>
           </div>
 
           {/* Mobile Search */}
