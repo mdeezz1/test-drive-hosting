@@ -12,6 +12,8 @@ import MeusDados from "./pages/MeusDados";
 import MeusPedidos from "./pages/MeusPedidos";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/meus-dados" element={<MeusDados />} />
             <Route path="/meus-pedidos" element={<MeusPedidos />} />
+            <Route path="/gw-admin-2025" element={<AdminLogin />} />
+            <Route path="/gw-admin-2025/dashboard" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
