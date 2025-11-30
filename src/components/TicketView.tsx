@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
 import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
-import eventBanner from "@/assets/event-banner.png";
+import eventCover from "@/assets/event-cover.jpg";
 
 interface TicketItem {
   name: string;
@@ -92,8 +92,8 @@ const TicketView = ({
 
   // Event info
   const eventName = "Ahh Verão - Henrique e Juliano + Nattan";
-  const eventLocation = "Praça de Eventos Luiz Gonzaga, Caruaru - PE";
-  const eventDate = "18/01/2025";
+  const eventLocation = "Arena Open, Camboriú - SC";
+  const eventDate = "02/01/2025";
   const eventTime = "16:00";
 
   // Get ticket name from items
@@ -124,7 +124,7 @@ const TicketView = ({
         {/* Event Banner */}
         <div className="w-48 h-32 overflow-hidden rounded flex-shrink-0">
           <img 
-            src={eventBanner} 
+            src={eventCover} 
             alt={eventName}
             className="w-full h-full object-cover"
           />
