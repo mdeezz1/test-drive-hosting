@@ -46,30 +46,39 @@ serve(async (req) => {
     // Generate unique transaction ID
     const transactionId = `PIX_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-    // Build description from items
-    const description = items.map(item => `${item.quantity}x ${item.name}`).join(', ');
+    // Build items array for FreePay
+    const freePayItems = items.map(item => ({
+      title: item.name,
+      unit_price: Math.round(item.price * 100), // Convert to cents
+      quantity: item.quantity,
+      tangible: false,
+      external_ref: transactionId
+    }));
 
-    // Build request body
+    // Build request body with correct snake_case format
     const requestBody = {
-      Amount: Math.round(amount * 100), // Convert to cents
-      PaymentMethod: 'pix',
-      ExternalId: transactionId,
-      Description: description.substring(0, 255),
-      Customer: {
-        Name: customerName,
-        Email: customerEmail,
-        Document: {
-          Type: 'cpf',
-          Number: customerCpf,
+      payment_method: 'pix',
+      customer: {
+        document: {
+          type: 'cpf',
+          number: customerCpf.replace(/\D/g, ''), // Remove non-digits
         },
-        Phone: customerPhone,
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone.replace(/\D/g, ''), // Remove non-digits
       },
-      Pix: {
-        ExpiresIn: 1800, // 30 minutes in seconds
-      },
-      Metadata: {
+      items: freePayItems,
+      metadata: {
+        provider_name: 'GuicheWeb',
         source: 'guicheweb',
         event: 'ahh-verao'
+      },
+      amount: Math.round(amount * 100), // Convert to cents
+      postback_url: 'https://urktmzyjqcsuiyizumom.supabase.co/functions/v1/pix-webhook',
+      ip: '127.0.0.1',
+      installments: 1,
+      pix: {
+        expires_in_days: 1
       }
     };
 
@@ -101,7 +110,7 @@ serve(async (req) => {
       );
     }
 
-    if (!freePayResponse.ok) {
+    if (!freePayResponse.ok || !freePayData.success) {
       console.error('FreePay API error:', freePayData);
       return new Response(
         JSON.stringify({ error: 'Failed to create PIX payment', details: freePayData }),
@@ -109,11 +118,11 @@ serve(async (req) => {
       );
     }
 
-    // Extract QR Code and copy/paste code from FreePay response
-    const qrCode = freePayData.pix?.qr_code_url || freePayData.qr_code_url || freePayData.qrcode_url;
-    const copiaCola = freePayData.pix?.qr_code || freePayData.qr_code || freePayData.copy_paste || freePayData.pix_code;
+    // Extract QR Code from FreePay response (data.pix.qr_code)
+    const pixData = freePayData.data?.pix;
+    const copiaCola = pixData?.qr_code;
 
-    if (!qrCode || !copiaCola) {
+    if (!copiaCola) {
       console.error('Missing QR code data in response:', freePayData);
       return new Response(
         JSON.stringify({ 
@@ -124,13 +133,16 @@ serve(async (req) => {
       );
     }
 
+    // Generate QR code URL from the PIX code (we'll use a QR code API)
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(copiaCola)}`;
+
     return new Response(
       JSON.stringify({
-        qrCode,
+        qrCode: qrCodeUrl,
         copiaCola,
         transactionId,
-        status: freePayData.status || 'PENDING',
-        externalId: freePayData.id || freePayData.transaction_id
+        status: freePayData.data?.status || 'PENDING',
+        externalId: freePayData.data?.id
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
