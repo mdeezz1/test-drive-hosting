@@ -210,14 +210,25 @@ const MeusPedidos = () => {
         return;
       }
 
-      await inlineTicketImages(ticketElement);
+      // Criar um clone fora da tela com largura fixa para garantir padrão A4
+      const clone = ticketElement.cloneNode(true) as HTMLDivElement;
+      clone.style.position = "fixed";
+      clone.style.left = "-10000px";
+      clone.style.top = "0";
+      clone.style.width = "800px";
+      clone.style.maxWidth = "800px";
+      clone.style.transform = "none";
+      clone.style.backgroundColor = "#ffffff";
+      document.body.appendChild(clone);
 
-      const canvas = await html2canvas(ticketElement, {
+      await inlineTicketImages(clone);
+
+      const canvas = await html2canvas(clone, {
         scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
       });
+
+      document.body.removeChild(clone);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
@@ -278,14 +289,25 @@ const MeusPedidos = () => {
         const ticketElement = ticketRefs.current[`${order.id}-${i}`];
         if (!ticketElement) continue;
 
-        await inlineTicketImages(ticketElement);
+        // Criar um clone fora da tela com largura fixa para garantir padrão A4
+        const clone = ticketElement.cloneNode(true) as HTMLDivElement;
+        clone.style.position = "fixed";
+        clone.style.left = "-10000px";
+        clone.style.top = "0";
+        clone.style.width = "800px";
+        clone.style.maxWidth = "800px";
+        clone.style.transform = "none";
+        clone.style.backgroundColor = "#ffffff";
+        document.body.appendChild(clone);
 
-        const canvas = await html2canvas(ticketElement, {
+        await inlineTicketImages(clone);
+
+        const canvas = await html2canvas(clone, {
           scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
+          backgroundColor: "#ffffff",
         });
+
+        document.body.removeChild(clone);
 
         const imgData = canvas.toDataURL('image/png');
 
