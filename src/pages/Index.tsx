@@ -179,10 +179,10 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-12">
+      <footer className="py-12 mt-12 text-white bg-black">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <img src="https://s3.guicheweb.com.br/nova_marca/logogw_branca.png" alt="Guichê Web Logo" className="h-10" />
+            <img alt="Guichê Web Logo" className="h-10" src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
             
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
