@@ -329,6 +329,14 @@ const MeusPedidos = () => {
 
       await copyQrCanvasToClone(ticketElement, clone);
 
+      const fixedCover = await getFixedCoverDataUrl();
+      if (fixedCover) {
+        const coverImg = clone.querySelector('[alt="' + (eventData?.name || resolvedEventData?.name || 'Evento') + '"]') as HTMLImageElement;
+        if (coverImg) {
+          coverImg.src = fixedCover;
+        }
+      }
+
       await inlineTicketImages(clone);
       await waitForImagesToLoad(clone);
 
@@ -349,26 +357,8 @@ const MeusPedidos = () => {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
-
-      const fixedCover = await getFixedCoverDataUrl();
-      let coverHeightMm = 0;
-
-      if (fixedCover) {
-        try {
-          const coverWidthMm = 60;
-          coverHeightMm = 40;
-          const coverX = (pageWidth - coverWidthMm) / 2;
-          const coverY = margin;
-
-          pdf.addImage(fixedCover, "PNG", coverX, coverY, coverWidthMm, coverHeightMm);
-        } catch (error) {
-          console.error("Erro ao adicionar capa fixa no PDF:", error);
-        }
-      }
-
-      const topY = margin + (coverHeightMm > 0 ? coverHeightMm + 5 : 0);
       const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - topY - margin;
+      const maxHeight = pageHeight - margin * 2;
 
       let imgWidth = maxWidth;
       let imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -380,7 +370,7 @@ const MeusPedidos = () => {
       }
 
       const x = (pageWidth - imgWidth) / 2;
-      const y = topY;
+      const y = margin;
 
       pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
 
@@ -410,6 +400,7 @@ const MeusPedidos = () => {
       const margin = 10;
       const fixedCover = await getFixedCoverDataUrl();
       const maxWidth = pageWidth - margin * 2;
+      const maxHeight = pageHeight - margin * 2;
 
       const totalTickets = order.items.reduce(
         (sum, item) => sum + item.quantity,
@@ -439,6 +430,13 @@ const MeusPedidos = () => {
 
         await copyQrCanvasToClone(ticketElement, clone);
 
+        if (fixedCover) {
+          const coverImg = clone.querySelector('[alt="' + (eventData?.name || resolvedEventData?.name || 'Evento') + '"]') as HTMLImageElement;
+          if (coverImg) {
+            coverImg.src = fixedCover;
+          }
+        }
+
         await inlineTicketImages(clone);
         await waitForImagesToLoad(clone);
 
@@ -451,10 +449,6 @@ const MeusPedidos = () => {
 
         const imgData = canvas.toDataURL("image/png");
 
-        const coverHeightMm = fixedCover ? 40 : 0;
-        const topY = margin + (coverHeightMm > 0 ? coverHeightMm + 5 : 0);
-        const maxHeight = pageHeight - topY - margin;
-
         let imgWidth = maxWidth;
         let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -465,29 +459,10 @@ const MeusPedidos = () => {
         }
 
         const x = (pageWidth - imgWidth) / 2;
-        const y = topY;
+        const y = margin;
 
         if (i > 0) {
           pdf.addPage();
-        }
-
-        if (fixedCover) {
-          try {
-            const coverWidthMm = 60;
-            const coverX = (pageWidth - coverWidthMm) / 2;
-            const coverY = margin;
-
-            pdf.addImage(
-              fixedCover,
-              "PNG",
-              coverX,
-              coverY,
-              coverWidthMm,
-              coverHeightMm
-            );
-          } catch (error) {
-            console.error("Erro ao adicionar capa fixa no PDF (todos):", error);
-          }
         }
 
         pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
