@@ -105,22 +105,14 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Banner Carousel */}
-      {!loading && featuredEvents.length > 0 && <section className="relative bg-black">
-          <Carousel className="w-full" opts={{
-        loop: true
-      }}>
-            <CarouselContent>
-              {featuredEvents.map(event => <CarouselItem key={event.id}>
-                  <div className="cursor-pointer" onClick={() => handleEventClick(event.slug)}>
-                    <img src={event.banner_url} alt={event.name} className="w-full max-h-[350px] md:max-h-[400px] object-contain" />
-                  </div>
-                </CarouselItem>)}
-            </CarouselContent>
-            <CarouselPrevious className="left-4 bg-white/80 hover:bg-white" />
-            <CarouselNext className="right-4 bg-white/80 hover:bg-white" />
-          </Carousel>
-        </section>}
+      {/* Home Banner */}
+      <section className="relative bg-black">
+        <img 
+          src="https://cdn.guicheweb.com.br/gw-bucket/banners/07-10-2025_12-03-15.jpg" 
+          alt="Banner" 
+          className="w-full max-h-[350px] md:max-h-[400px] object-contain" 
+        />
+      </section>
 
       {/* Featured Events Section (3 cards) */}
       {!loading && featuredEvents.length > 0 && <section className="container mx-auto px-4 py-8">
