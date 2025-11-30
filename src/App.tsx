@@ -22,8 +22,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/manifesto-musical-maracana-lote-extra" element={<Ingressos />} />
-            <Route path="/ingressos" element={<Navigate to="/manifesto-musical-maracana-lote-extra" replace />} />
+            <Route path="/ahh-verao-henrique-e-juliano-nattan" element={<Ingressos />} />
+            <Route path="/ingressos" element={<Navigate to="/ahh-verao-henrique-e-juliano-nattan" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/meus-dados" element={<MeusDados />} />
             <Route path="/meus-pedidos" element={<MeusPedidos />} />

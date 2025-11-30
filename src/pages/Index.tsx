@@ -21,7 +21,7 @@ const Index = () => {
 
         <Button
           size="lg"
-          onClick={() => navigate("/manifesto-musical-maracana-lote-extra")}
+          onClick={() => navigate("/ahh-verao-henrique-e-juliano-nattan")}
           className="text-lg px-10 py-7 bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold"
         >
           <Ticket className="mr-2 h-5 w-5" />
