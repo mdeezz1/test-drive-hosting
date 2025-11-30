@@ -120,8 +120,8 @@ const Index = () => {
       {/* Featured Events Section (3 cards) */}
       {!loading && featuredEvents.length > 0 && <section className="container mx-auto px-4 py-8">
           <div className="flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl">
-              {featuredEvents.slice(0, 3).map(event => <div key={event.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer group w-[200px]" onClick={() => handleEventClick(event.slug)}>
+            <div className="grid grid-cols-3 gap-2 md:gap-4 max-w-3xl">
+              {featuredEvents.slice(0, 3).map(event => <div key={event.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => handleEventClick(event.slug)}>
                   <div className="aspect-[3/4] overflow-hidden">
                     <img src={event.cover_url || event.banner_url} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
