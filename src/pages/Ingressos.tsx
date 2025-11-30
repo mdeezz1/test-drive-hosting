@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import eventCover from "@/assets/event-cover.jpg";
 import eventBanner from "@/assets/event-banner.png";
-
 interface TicketType {
   id: string;
   section: string;
@@ -18,14 +17,12 @@ interface TicketType {
   available: number;
   color: string;
 }
-
 const Ingressos = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [cartTotal, setCartTotal] = useState(0);
   const [couponCode, setCouponCode] = useState("");
   const [expandedSectors, setExpandedSectors] = useState<Record<string, boolean>>({});
-
   const eventData = {
     name: "Ahh Verão - Henrique e Juliano + Nattan",
     date: "02/01/2026",
@@ -38,13 +35,11 @@ const Ingressos = () => {
     facebook: "https://www.facebook.com/gdoproducoes",
     mapsEmbedUrl: "https://maps.google.com/maps?q=Arena+Open+Camboriú,+Camboriú+-+SC,+Brasil&center=-27.0253,-48.6513&t=&z=15&ie=UTF8&iwloc=&output=embed"
   };
-
   interface TicketVariant {
     id: string;
     name: string;
     price: number;
   }
-
   interface TicketSector {
     id: string;
     section: string;
@@ -53,80 +48,100 @@ const Ingressos = () => {
     available: number;
     variants: TicketVariant[];
   }
-
   interface TicketVariantWithFee extends TicketVariant {
     fee: number;
   }
-
   interface TicketSectorWithFee extends Omit<TicketSector, 'variants'> {
     variants: TicketVariantWithFee[];
   }
-
-  const ticketSectors: TicketSectorWithFee[] = [
-    { 
-      id: 'frontstage', 
-      section: 'Frontstage Open Food', 
-      description: 'Open Food: Massas, risotos e doces',
-      color: '#FFD700', 
-      available: 50,
-      variants: [
-        { id: 'frontstage-inteira', name: 'Inteira', price: 370, fee: 19.92 }
-      ]
-    },
-    { 
-      id: 'premium', 
-      section: 'Premium Open Bar +18', 
-      description: 'Open Bar de Água, cerveja, refrigerante, suco, vodka',
-      color: '#9333EA', 
-      available: 100,
-      variants: [
-        { id: 'premium-inteira', name: 'Inteira', price: 285, fee: 14.68 }
-      ]
-    },
-    { 
-      id: 'vip', 
-      section: 'Área VIP', 
-      description: 'Visão frontal do palco; Área de convivência; Banheiros no setor.',
-      color: '#3B82F6', 
-      available: 200,
-      variants: [
-        { id: 'vip-inteira', name: 'Inteira', price: 230, fee: 14.68 },
-        { id: 'vip-meia', name: 'Meia', price: 115, fee: 7.34 },
-        { id: 'vip-solidario', name: 'Solidário (+1KG alimento)', price: 130, fee: 11.53 }
-      ]
-    },
-    { 
-      id: 'arena', 
-      section: 'Arena', 
-      description: 'Visão frontal do palco; Área de convivência; Setor com menor custo.',
-      color: '#22C55E', 
-      available: 500,
-      variants: [
-        { id: 'arena-inteira', name: 'Inteira', price: 170, fee: 12.47 },
-        { id: 'arena-meia', name: 'Meia', price: 85, fee: 7.42 },
-        { id: 'arena-solidario', name: 'Solidário (+1KG alimento)', price: 100, fee: 8.14 },
-        { id: 'arena-pcd', name: 'PCD ou Acompanhante PCD', price: 85, fee: 7.42 }
-      ]
-    }
-  ];
+  const ticketSectors: TicketSectorWithFee[] = [{
+    id: 'frontstage',
+    section: 'Frontstage Open Food',
+    description: 'Open Food: Massas, risotos e doces',
+    color: '#FFD700',
+    available: 50,
+    variants: [{
+      id: 'frontstage-inteira',
+      name: 'Inteira',
+      price: 370,
+      fee: 19.92
+    }]
+  }, {
+    id: 'premium',
+    section: 'Premium Open Bar +18',
+    description: 'Open Bar de Água, cerveja, refrigerante, suco, vodka',
+    color: '#9333EA',
+    available: 100,
+    variants: [{
+      id: 'premium-inteira',
+      name: 'Inteira',
+      price: 285,
+      fee: 14.68
+    }]
+  }, {
+    id: 'vip',
+    section: 'Área VIP',
+    description: 'Visão frontal do palco; Área de convivência; Banheiros no setor.',
+    color: '#3B82F6',
+    available: 200,
+    variants: [{
+      id: 'vip-inteira',
+      name: 'Inteira',
+      price: 230,
+      fee: 14.68
+    }, {
+      id: 'vip-meia',
+      name: 'Meia',
+      price: 115,
+      fee: 7.34
+    }, {
+      id: 'vip-solidario',
+      name: 'Solidário (+1KG alimento)',
+      price: 130,
+      fee: 11.53
+    }]
+  }, {
+    id: 'arena',
+    section: 'Arena',
+    description: 'Visão frontal do palco; Área de convivência; Setor com menor custo.',
+    color: '#22C55E',
+    available: 500,
+    variants: [{
+      id: 'arena-inteira',
+      name: 'Inteira',
+      price: 170,
+      fee: 12.47
+    }, {
+      id: 'arena-meia',
+      name: 'Meia',
+      price: 85,
+      fee: 7.42
+    }, {
+      id: 'arena-solidario',
+      name: 'Solidário (+1KG alimento)',
+      price: 100,
+      fee: 8.14
+    }, {
+      id: 'arena-pcd',
+      name: 'PCD ou Acompanhante PCD',
+      price: 85,
+      fee: 7.42
+    }]
+  }];
 
   // For backward compatibility with cart logic
-  const tickets: TicketType[] = ticketSectors.flatMap(sector => 
-    sector.variants.map(variant => ({
-      id: variant.id,
-      section: `${sector.section} - ${variant.name}`,
-      price: variant.price,
-      color: sector.color,
-      available: sector.available
-    }))
-  );
-
+  const tickets: TicketType[] = ticketSectors.flatMap(sector => sector.variants.map(variant => ({
+    id: variant.id,
+    section: `${sector.section} - ${variant.name}`,
+    price: variant.price,
+    color: sector.color,
+    available: sector.available
+  })));
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 1500);
   }, []);
-
   useEffect(() => {
     let total = 0;
     Object.entries(cart).forEach(([ticketId, quantity]) => {
@@ -137,13 +152,11 @@ const Ingressos = () => {
     });
     setCartTotal(total);
   }, [cart]);
-
   const handleShare = (platform: string) => {
     const shareUrl = window.location.href;
     const shareText = `${eventData.name} - ${eventData.date}`;
-
     let url = "";
-    switch(platform) {
+    switch (platform) {
       case "WhatsApp":
         url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
         break;
@@ -154,43 +167,35 @@ const Ingressos = () => {
         url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
         break;
     }
-
     if (url) {
       window.open(url, '_blank', 'width=600,height=400');
     }
   };
-
   const toggleSector = (ticketId: string) => {
     setExpandedSectors(prev => ({
       ...prev,
       [ticketId]: !prev[ticketId]
     }));
   };
-
   const getTotalItems = () => {
     return Object.values(cart).reduce((sum, qty) => sum + qty, 0);
   };
-
   const canAddMore = () => {
     return getTotalItems() < 2;
   };
-
   const getSelectedCategory = () => {
     const categories = Object.keys(cart).filter(key => cart[key] > 0);
     return categories.length > 0 ? categories[0] : null;
   };
-
   const updateQuantity = (ticketId: string, change: number) => {
     setCart(prev => {
       const currentQty = prev[ticketId] || 0;
       const newQty = Math.max(0, currentQty + change);
-
       const ticket = tickets.find(t => t.id === ticketId);
       if (ticket && newQty > ticket.available) {
         toast.error("Quantidade não disponível");
         return prev;
       }
-
       const selectedCategory = getSelectedCategory();
       if (change > 0 && selectedCategory && selectedCategory !== ticketId && currentQty === 0) {
         toast.error("Você pode comprar apenas uma classe de ingresso por vez", {
@@ -199,57 +204,79 @@ const Ingressos = () => {
         });
         return prev;
       }
-
       if (change > 0 && !canAddMore()) {
         toast.error("Você pode comprar no máximo 2 ingressos no total");
         return prev;
       }
-
       if (newQty === 0) {
-        const { [ticketId]: _, ...rest } = prev;
+        const {
+          [ticketId]: _,
+          ...rest
+        } = prev;
         return rest;
       }
-
       if (change > 0 && currentQty === 0) {
         toast.success("Ingresso adicionado ao carrinho!");
       }
-
-      return { ...prev, [ticketId]: newQty };
+      return {
+        ...prev,
+        [ticketId]: newQty
+      };
     });
   };
-
   const checkoutLinks: Record<string, Record<number, string>> = {
     // Links de checkout serão configurados após integração com FreePay
-    'frontstage-inteira': { 1: '', 2: '' },
-    'premium-inteira': { 1: '', 2: '' },
-    'vip-inteira': { 1: '', 2: '' },
-    'vip-meia': { 1: '', 2: '' },
-    'vip-solidario': { 1: '', 2: '' },
-    'arena-inteira': { 1: '', 2: '' },
-    'arena-meia': { 1: '', 2: '' },
-    'arena-solidario': { 1: '', 2: '' },
-    'arena-pcd': { 1: '', 2: '' }
+    'frontstage-inteira': {
+      1: '',
+      2: ''
+    },
+    'premium-inteira': {
+      1: '',
+      2: ''
+    },
+    'vip-inteira': {
+      1: '',
+      2: ''
+    },
+    'vip-meia': {
+      1: '',
+      2: ''
+    },
+    'vip-solidario': {
+      1: '',
+      2: ''
+    },
+    'arena-inteira': {
+      1: '',
+      2: ''
+    },
+    'arena-meia': {
+      1: '',
+      2: ''
+    },
+    'arena-solidario': {
+      1: '',
+      2: ''
+    },
+    'arena-pcd': {
+      1: '',
+      2: ''
+    }
   };
-
   const handleCheckout = () => {
     const selectedCategory = getSelectedCategory();
     const totalQuantity = getTotalItems();
-
     if (!selectedCategory || totalQuantity === 0) {
       toast.error("Adicione ingressos ao carrinho");
       return;
     }
-
     const checkoutUrl = checkoutLinks[selectedCategory]?.[totalQuantity];
-
     if (!checkoutUrl || checkoutUrl === '') {
       toast.error("Link de checkout não configurado para esta seleção");
       return;
     }
-
     window.location.href = checkoutUrl;
   };
-
   const applyCoupon = () => {
     if (!couponCode.trim()) {
       toast.error("Digite um código de cupom");
@@ -257,66 +284,42 @@ const Ingressos = () => {
     }
     toast.info("Cupom não encontrado");
   };
-
   const formatCurrency = (value: number) => {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
   };
-
-  return (
-    <div className="min-h-screen bg-white pb-32">
+  return <div className="min-h-screen bg-white pb-32">
       <Navbar />
 
       {/* Hero Banner */}
       <div className="relative mt-16">
-        <img
-          src={eventData.cover}
-          alt={eventData.name}
-          className="w-full h-auto object-contain"
-        />
+        <img src={eventData.cover} alt={eventData.name} className="w-full h-auto object-contain" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-white pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 -mt-20 md:-mt-24 relative z-10">
-        <div className="bg-white rounded-lg shadow-2xl p-4 md:p-8 mb-8 max-w-5xl mx-auto">
+        <div className="bg-white rounded-lg shadow-2xl p-4 md:p-8 mb-8 max-w-5xl mx-0 my-[75px]">
           <div className="flex flex-col lg:flex-row lg:gap-8 lg:items-start">
             <div className="flex justify-center lg:justify-start mb-6 lg:mb-0 lg:w-1/3">
               <div className="w-full max-w-[320px] lg:max-w-none">
-                <img
-                  src={eventData.image}
-                  alt={eventData.name}
-                  className="w-full rounded-lg shadow-md"
-                />
+                <img src={eventData.image} alt={eventData.name} className="w-full rounded-lg shadow-md" />
 
                 <div className="mt-4">
                   <p className="text-sm text-center text-gray-600 mb-3">Compartilhar</p>
                   <div className="flex gap-3 justify-center">
-                    <button
-                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      onClick={() => handleShare("WhatsApp")}
-                      title="WhatsApp"
-                    >
+                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" onClick={() => handleShare("WhatsApp")} title="WhatsApp">
                       <FaWhatsapp className="h-5 w-5 text-green-600" />
                     </button>
-                    <button
-                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      onClick={() => handleShare("Facebook")}
-                      title="Facebook"
-                    >
+                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" onClick={() => handleShare("Facebook")} title="Facebook">
                       <FaFacebookF className="h-5 w-5 text-blue-600" />
                     </button>
-                    <button
-                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      onClick={() => window.open(`fb-messenger://share/?link=${encodeURIComponent(window.location.href)}`, '_blank')}
-                      title="Messenger"
-                    >
+                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" onClick={() => window.open(`fb-messenger://share/?link=${encodeURIComponent(window.location.href)}`, '_blank')} title="Messenger">
                       <FaFacebookMessenger className="h-5 w-5 text-blue-500" />
                     </button>
-                    <button
-                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      onClick={() => handleShare("Twitter")}
-                      title="X (Twitter)"
-                    >
+                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" onClick={() => handleShare("Twitter")} title="X (Twitter)">
                       <FaXTwitter className="h-5 w-5 text-gray-800" />
                     </button>
                   </div>
@@ -339,54 +342,34 @@ const Ingressos = () => {
               </p>
 
               <div className="pt-2 flex gap-4">
-                <a
-                  href={eventData.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block hover:opacity-70 transition-opacity"
-                >
+                <a href={eventData.instagram} target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-70 transition-opacity">
                   <Instagram className="h-7 w-7 lg:h-8 lg:w-8 text-gray-800" />
                 </a>
-                <a
-                  href={eventData.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block hover:opacity-70 transition-opacity"
-                >
+                <a href={eventData.facebook} target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-70 transition-opacity">
                   <FaFacebookF className="h-7 w-7 lg:h-8 lg:w-8 text-gray-800" />
                 </a>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl lg:max-w-none pt-4">
-                <button
-                  onClick={() => document.getElementById('ingressos')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
-                  title="Ingressos"
-                >
+                <button onClick={() => document.getElementById('ingressos')?.scrollIntoView({
+                behavior: 'smooth'
+              })} className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all" title="Ingressos">
                   <Ticket className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
                 </button>
 
-                <button
-                  onClick={() => document.getElementById('localizacao')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
-                  title="Mapa"
-                >
+                <button onClick={() => document.getElementById('localizacao')?.scrollIntoView({
+                behavior: 'smooth'
+              })} className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all" title="Mapa">
                   <Map className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
                 </button>
 
-                <button
-                  onClick={() => document.getElementById('info')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
-                  title="Informação"
-                >
+                <button onClick={() => document.getElementById('info')?.scrollIntoView({
+                behavior: 'smooth'
+              })} className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all" title="Informação">
                   <Info className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
                 </button>
 
-                <button
-                  onClick={() => window.open('https://www.youtube.com', '_blank')}
-                  className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
-                  title="Youtube"
-                >
+                <button onClick={() => window.open('https://www.youtube.com', '_blank')} className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all" title="Youtube">
                   <Youtube className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
                 </button>
               </div>
@@ -400,47 +383,28 @@ const Ingressos = () => {
             MAPA DO EVENTO
           </h2>
           <div className="rounded-lg overflow-hidden shadow-md">
-            <img 
-              src="/event-map.png" 
-              alt="Mapa do Evento - Setores" 
-              className="w-full h-auto"
-            />
+            <img src="/event-map.png" alt="Mapa do Evento - Setores" className="w-full h-auto" />
           </div>
         </div>
 
         {/* Tickets Section */}
         <div id="ingressos" className="max-w-5xl mx-auto mb-8">
           <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
+            {loading ? <span className="flex items-center justify-center gap-2">
                 CARREGANDO SETORES <Loader2 className="h-6 w-6 animate-spin" />
-              </span>
-            ) : (
-              "INGRESSOS"
-            )}
+              </span> : "INGRESSOS"}
           </h2>
 
-          {!loading && (
-            <div className="space-y-4">
-              {ticketSectors.map((sector) => {
-                const isExpanded = expandedSectors[sector.id];
-                const lowestPrice = Math.min(...sector.variants.map(v => v.price));
-                return (
-                  <div
-                    key={sector.id}
-                    className={`shadow rounded-lg overflow-hidden transition-colors ${
-                      isExpanded ? 'bg-gray-700' : 'bg-gray-100'
-                    }`}
-                  >
-                    <button
-                      onClick={() => toggleSector(sector.id)}
-                      className="w-full flex items-center justify-between p-4 hover:opacity-90 transition-opacity"
-                    >
+          {!loading && <div className="space-y-4">
+              {ticketSectors.map(sector => {
+            const isExpanded = expandedSectors[sector.id];
+            const lowestPrice = Math.min(...sector.variants.map(v => v.price));
+            return <div key={sector.id} className={`shadow rounded-lg overflow-hidden transition-colors ${isExpanded ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                    <button onClick={() => toggleSector(sector.id)} className="w-full flex items-center justify-between p-4 hover:opacity-90 transition-opacity">
                       <div className="flex items-center gap-3">
-                        <div
-                          className="w-4 h-4 rounded"
-                          style={{ backgroundColor: sector.color }}
-                        />
+                        <div className="w-4 h-4 rounded" style={{
+                    backgroundColor: sector.color
+                  }} />
                         <div className="text-left">
                           <h3 className={`font-semibold text-lg ${isExpanded ? 'text-white' : 'text-gray-900'}`}>
                             {sector.section}
@@ -458,10 +422,8 @@ const Ingressos = () => {
                       </span>
                     </button>
 
-                    {isExpanded && (
-                      <div className="bg-gray-100 px-4 py-4 space-y-4">
-                        {sector.variants.map((variant) => (
-                          <div key={variant.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
+                    {isExpanded && <div className="bg-gray-100 px-4 py-4 space-y-4">
+                        {sector.variants.map(variant => <div key={variant.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
                           <div className="space-y-1 mb-3">
                               <p className="text-sm text-gray-700">
                                 <span className="font-medium">Ingresso:</span> {sector.section} ({variant.name})
@@ -475,37 +437,21 @@ const Ingressos = () => {
                             </div>
 
                             <div className="flex items-center justify-end gap-2 bg-white rounded-lg p-2">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 hover:bg-gray-100"
-                                onClick={() => updateQuantity(variant.id, -1)}
-                                disabled={!cart[variant.id] || cart[variant.id] === 0}
-                              >
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gray-100" onClick={() => updateQuantity(variant.id, -1)} disabled={!cart[variant.id] || cart[variant.id] === 0}>
                                 <Minus className="h-4 w-4" />
                               </Button>
                               <span className="w-12 text-center font-bold text-gray-900">
                                 {cart[variant.id] || 0}
                               </span>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 hover:bg-gray-100"
-                                onClick={() => updateQuantity(variant.id, 1)}
-                                disabled={!canAddMore() && (!cart[variant.id] || cart[variant.id] === 0)}
-                              >
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gray-100" onClick={() => updateQuantity(variant.id, 1)} disabled={!canAddMore() && (!cart[variant.id] || cart[variant.id] === 0)}>
                                 <Plus className="h-4 w-4" />
                               </Button>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                          </div>)}
+                      </div>}
+                  </div>;
+          })}
+            </div>}
         </div>
 
         <Separator className="my-8 max-w-5xl mx-auto" />
@@ -644,13 +590,9 @@ const Ingressos = () => {
           </h2>
           <Separator className="mb-6" />
           <div className="aspect-video rounded-lg overflow-hidden shadow-md">
-            <iframe
-              src={eventData.mapsEmbedUrl}
-              className="w-full h-full"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-            />
+            <iframe src={eventData.mapsEmbedUrl} className="w-full h-full" style={{
+            border: 0
+          }} allowFullScreen loading="lazy" />
           </div>
         </div>
 
@@ -658,12 +600,7 @@ const Ingressos = () => {
         <footer className="max-w-5xl mx-auto bg-black text-white py-8 rounded-lg">
           <div className="text-center space-y-6">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="https://apps.apple.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block"
-              >
+              <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer" className="inline-block">
                 <div className="bg-white text-black px-6 py-3 rounded-lg flex items-center gap-3 hover:bg-gray-100 transition-colors">
                   <div className="text-left">
                     <div className="text-xs">Disponível na</div>
@@ -672,12 +609,7 @@ const Ingressos = () => {
                 </div>
               </a>
 
-              <a
-                href="https://play.google.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block"
-              >
+              <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="inline-block">
                 <div className="bg-white text-black px-6 py-3 rounded-lg flex items-center gap-3 hover:bg-gray-100 transition-colors">
                   <div className="text-left">
                     <div className="text-xs">Disponível no</div>
@@ -697,8 +629,9 @@ const Ingressos = () => {
       </div>
 
       {/* Fixed Cart */}
-      {getTotalItems() > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 shadow-2xl z-50" style={{ backgroundColor: 'rgba(29, 115, 28, 0.95)' }}>
+      {getTotalItems() > 0 && <div className="fixed bottom-0 left-0 right-0 shadow-2xl z-50" style={{
+      backgroundColor: 'rgba(29, 115, 28, 0.95)'
+    }}>
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between max-w-5xl mx-auto">
               <div className="flex-1">
@@ -714,21 +647,14 @@ const Ingressos = () => {
               </div>
               <div className="flex flex-col items-end gap-2">
                 <p className="text-sm text-white">Tudo pronto?</p>
-                <Button
-                  size="lg"
-                  className="bg-white hover:bg-gray-100 text-gray-900 font-semibold"
-                  onClick={handleCheckout}
-                >
+                <Button size="lg" className="bg-white hover:bg-gray-100 text-gray-900 font-semibold" onClick={handleCheckout}>
                   CONTINUAR
                   <span className="ml-2">›</span>
                 </Button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default Ingressos;
