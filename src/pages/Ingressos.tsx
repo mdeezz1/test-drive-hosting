@@ -25,24 +25,91 @@ const Ingressos = () => {
   const [expandedSectors, setExpandedSectors] = useState<Record<string, boolean>>({});
 
   const eventData = {
-    name: "Manifesto Musical - Maracanã",
-    date: "03/01/2026",
-    location: "Maracanã - RIO DE JANEIRO/RJ",
-    image: "https://cdn.guicheweb.com.br/gw-bucket/imagenseventos/11-09-2025_07-51-19.jpg",
-    cover: "https://cdn.guicheweb.com.br/gw-bucket/imagenseventos/11-09-2025_07-51-30.jpg",
-    logo: "https://cdn.guicheweb.com.br/gw-bucket/imagenseventos/11-09-2025_08-44-49.png",
-    instagram: "https://www.instagram.com/manifestomusicaloficial/",
-    mapsEmbedUrl: "https://maps.google.com/maps?q=Maracanã,+Rio+de+Janeiro+-+RJ,+Brasil&center=-22.9123598,-43.2265474&t=&z=17&ie=UTF8&iwloc=&output=embed"
+    name: "Ahh Verão - Henrique e Juliano + Nattan",
+    date: "02/01/2026",
+    time: "21:00H",
+    location: "Arena Open Camboriú - CAMBORIÚ/SC",
+    image: "https://images.guicheweb.com.br/imagenseventos/30-09-2024_12-08-36.jpg",
+    cover: "https://images.guicheweb.com.br/imagenseventos/30-09-2024_12-04-05.jpg",
+    logo: "",
+    instagram: "https://www.instagram.com/gdoproducoes/",
+    facebook: "https://www.facebook.com/gdoproducoes",
+    mapsEmbedUrl: "https://maps.google.com/maps?q=Arena+Open+Camboriú,+Camboriú+-+SC,+Brasil&center=-27.0253,-48.6513&t=&z=15&ie=UTF8&iwloc=&output=embed"
   };
 
-  const tickets: TicketType[] = [
-    { id: 'gramado', section: 'Gramado', price: 290, color: '#53ad53', available: 100 },
-    { id: 'inferior-sul', section: 'Inferior Sul', price: 220, color: '#ff78c9', available: 80 },
-    { id: 'superior-sul', section: 'Superior Sul', price: 180, color: '#e20615', available: 120 },
-    { id: 'inferior-leste', section: 'Inferior Leste', price: 220, color: '#38a1e0', available: 90 },
-    { id: 'superior-leste', section: 'Superior Leste', price: 180, color: '#832cb2', available: 110 },
-    { id: 'inferior-oeste', section: 'Inferior Oeste', price: 220, color: '#e20615', available: 85 }
+  interface TicketVariant {
+    id: string;
+    name: string;
+    price: number;
+  }
+
+  interface TicketSector {
+    id: string;
+    section: string;
+    description: string;
+    color: string;
+    available: number;
+    variants: TicketVariant[];
+  }
+
+  const ticketSectors: TicketSector[] = [
+    { 
+      id: 'frontstage', 
+      section: 'Frontstage Open Food', 
+      description: 'Open Food: Massas, risotos e doces',
+      color: '#FFD700', 
+      available: 50,
+      variants: [
+        { id: 'frontstage-inteira', name: 'Inteira', price: 460 }
+      ]
+    },
+    { 
+      id: 'premium', 
+      section: 'Premium Open Bar +18', 
+      description: 'Open Bar de Água, cerveja, refrigerante, suco, vodka',
+      color: '#9333EA', 
+      available: 100,
+      variants: [
+        { id: 'premium-inteira', name: 'Inteira', price: 157.50 }
+      ]
+    },
+    { 
+      id: 'vip', 
+      section: 'Área VIP', 
+      description: 'Visão frontal do palco; Área de convivência; Banheiros no setor.',
+      color: '#3B82F6', 
+      available: 200,
+      variants: [
+        { id: 'vip-inteira', name: 'Inteira', price: 160 },
+        { id: 'vip-meia', name: 'Meia', price: 80 },
+        { id: 'vip-solidario', name: 'Solidário (+1KG alimento)', price: 85 }
+      ]
+    },
+    { 
+      id: 'arena', 
+      section: 'Arena', 
+      description: 'Visão frontal do palco; Área de convivência; Setor com menor custo.',
+      color: '#22C55E', 
+      available: 500,
+      variants: [
+        { id: 'arena-inteira', name: 'Inteira', price: 105 },
+        { id: 'arena-meia', name: 'Meia', price: 52.50 },
+        { id: 'arena-solidario', name: 'Solidário (+1KG alimento)', price: 57.50 },
+        { id: 'arena-pcd', name: 'PCD ou Acompanhante PCD', price: 52.50 }
+      ]
+    }
   ];
+
+  // For backward compatibility with cart logic
+  const tickets: TicketType[] = ticketSectors.flatMap(sector => 
+    sector.variants.map(variant => ({
+      id: variant.id,
+      section: `${sector.section} - ${variant.name}`,
+      price: variant.price,
+      color: sector.color,
+      available: sector.available
+    }))
+  );
 
   useEffect(() => {
     setTimeout(() => {
@@ -142,30 +209,16 @@ const Ingressos = () => {
   };
 
   const checkoutLinks: Record<string, Record<number, string>> = {
-    'gramado': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713649326975&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713693574745&store=7136'
-    },
-    'inferior-sul': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713671823655&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713628786194&store=7136'
-    },
-    'superior-sul': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713635953134&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713659448457&store=7136'
-    },
-    'inferior-leste': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713625669933&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713649879644&store=7136'
-    },
-    'superior-leste': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713672598423&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713691678476&store=7136'
-    },
-    'inferior-oeste': {
-      1: 'https://checkout.vendeagora.com/api/public/shopify?product=713669356652&store=7136',
-      2: 'https://checkout.vendeagora.com/api/public/shopify?product=713644731959&store=7136'
-    }
+    // Links de checkout serão configurados após integração com FreePay
+    'frontstage-inteira': { 1: '', 2: '' },
+    'premium-inteira': { 1: '', 2: '' },
+    'vip-inteira': { 1: '', 2: '' },
+    'vip-meia': { 1: '', 2: '' },
+    'vip-solidario': { 1: '', 2: '' },
+    'arena-inteira': { 1: '', 2: '' },
+    'arena-meia': { 1: '', 2: '' },
+    'arena-solidario': { 1: '', 2: '' },
+    'arena-pcd': { 1: '', 2: '' }
   };
 
   const handleCheckout = () => {
@@ -206,20 +259,13 @@ const Ingressos = () => {
       {/* Hero Banner */}
       <div className="relative">
         <div
-          className="relative w-full h-[220px] md:h-[360px] bg-no-repeat bg-top mt-16"
+          className="relative w-full h-[280px] md:h-[420px] bg-no-repeat bg-center mt-16"
           style={{
             backgroundImage: `url('${eventData.cover}')`,
-            backgroundSize: 'contain'
+            backgroundSize: 'cover'
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white pointer-events-none"></div>
-          <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
-            <img
-              src={eventData.logo}
-              alt="Logo do Evento"
-              className="w-full max-w-none h-auto drop-shadow-2xl"
-            />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-white pointer-events-none"></div>
         </div>
       </div>
 
@@ -277,7 +323,7 @@ const Ingressos = () => {
               </h1>
 
               <p className="text-xl md:text-2xl lg:text-3xl text-gray-700">
-                {eventData.date}
+                {eventData.date} - {eventData.time}
               </p>
 
               <p className="text-lg lg:text-xl text-gray-600 flex items-center justify-center lg:justify-start gap-2">
@@ -285,7 +331,7 @@ const Ingressos = () => {
                 <span>{eventData.location}</span>
               </p>
 
-              <div className="pt-2">
+              <div className="pt-2 flex gap-4">
                 <a
                   href={eventData.instagram}
                   target="_blank"
@@ -293,6 +339,14 @@ const Ingressos = () => {
                   className="inline-block hover:opacity-70 transition-opacity"
                 >
                   <Instagram className="h-7 w-7 lg:h-8 lg:w-8 text-gray-800" />
+                </a>
+                <a
+                  href={eventData.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block hover:opacity-70 transition-opacity"
+                >
+                  <FaFacebookF className="h-7 w-7 lg:h-8 lg:w-8 text-gray-800" />
                 </a>
               </div>
 
@@ -376,30 +430,34 @@ const Ingressos = () => {
 
           {!loading && (
             <div className="space-y-4">
-              {tickets.map((ticket) => {
-                const isExpanded = expandedSectors[ticket.id];
+              {ticketSectors.map((sector) => {
+                const isExpanded = expandedSectors[sector.id];
+                const lowestPrice = Math.min(...sector.variants.map(v => v.price));
                 return (
                   <div
-                    key={ticket.id}
+                    key={sector.id}
                     className={`shadow rounded-lg overflow-hidden transition-colors ${
                       isExpanded ? 'bg-gray-700' : 'bg-gray-100'
                     }`}
                   >
                     <button
-                      onClick={() => toggleSector(ticket.id)}
+                      onClick={() => toggleSector(sector.id)}
                       className="w-full flex items-center justify-between p-4 hover:opacity-90 transition-opacity"
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className="w-4 h-4 rounded"
-                          style={{ backgroundColor: ticket.color }}
+                          style={{ backgroundColor: sector.color }}
                         />
                         <div className="text-left">
                           <h3 className={`font-semibold text-lg ${isExpanded ? 'text-white' : 'text-gray-900'}`}>
-                            {ticket.section}
+                            {sector.section}
                           </h3>
                           <p className={`text-sm ${isExpanded ? 'text-gray-200' : 'text-gray-500'}`}>
-                            a partir de R$ {ticket.price},00
+                            {sector.description}
+                          </p>
+                          <p className={`text-sm font-medium ${isExpanded ? 'text-gray-200' : 'text-gray-600'}`}>
+                            a partir de {formatCurrency(lowestPrice)}
                           </p>
                         </div>
                       </div>
@@ -410,41 +468,45 @@ const Ingressos = () => {
 
                     {isExpanded && (
                       <div className="bg-gray-100 px-4 py-4 space-y-4">
-                        <div className="space-y-1">
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Ingresso:</span> Inteiro
-                          </p>
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Lote:</span> LOTE EXTRA
-                          </p>
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Valor + Taxa:</span> R$ {ticket.price},00 + R$ 0,00
-                          </p>
-                        </div>
+                        {sector.variants.map((variant) => (
+                          <div key={variant.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
+                            <div className="space-y-1 mb-3">
+                              <p className="text-sm text-gray-700">
+                                <span className="font-medium">Ingresso:</span> {sector.section} ({variant.name})
+                              </p>
+                              <p className="text-sm text-gray-700">
+                                <span className="font-medium">Lote:</span> 2. LOTE
+                              </p>
+                              <p className="text-sm text-gray-700">
+                                <span className="font-medium">Valor + Taxa:</span> {formatCurrency(variant.price)} + R$ 0,00
+                              </p>
+                            </div>
 
-                        <div className="flex items-center justify-end gap-2 bg-white rounded-lg p-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 hover:bg-gray-100"
-                            onClick={() => updateQuantity(ticket.id, -1)}
-                            disabled={!cart[ticket.id] || cart[ticket.id] === 0}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-12 text-center font-bold text-gray-900">
-                            {cart[ticket.id] || 0}
-                          </span>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 hover:bg-gray-100"
-                            onClick={() => updateQuantity(ticket.id, 1)}
-                            disabled={!canAddMore() && (!cart[ticket.id] || cart[ticket.id] === 0)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
+                            <div className="flex items-center justify-end gap-2 bg-white rounded-lg p-2">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 hover:bg-gray-100"
+                                onClick={() => updateQuantity(variant.id, -1)}
+                                disabled={!cart[variant.id] || cart[variant.id] === 0}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-12 text-center font-bold text-gray-900">
+                                {cart[variant.id] || 0}
+                              </span>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 hover:bg-gray-100"
+                                onClick={() => updateQuantity(variant.id, 1)}
+                                disabled={!canAddMore() && (!cart[variant.id] || cart[variant.id] === 0)}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -465,42 +527,117 @@ const Ingressos = () => {
           <div className="bg-gray-100 rounded-lg p-6 md:p-8 space-y-6">
             <div className="text-center">
               <h3 className="text-xl font-bold mb-4 text-gray-900">
-                Manifesto Musical de Henrique & Juliano chega ao Maracanã.
+                HENRIQUE E JULIANO + NATTAN - AHH VERÃO
               </h3>
-              <p className="text-gray-800 text-justify mb-4">
-                Conhecidos por literalmente arrastar multidões, Henrique e Juliano transformam em turnê o show "Manifesto Musical", que os consagrou com o feito histórico de esgotarem, em algumas horas, três datas consecutivas do Allianz Parque/SP.
-              </p>
-              <p className="text-gray-800 text-justify">
-                Esta será a única oportunidade no ano de vivenciar um show da dupla no Rio de Janeiro e, se tratando de Henrique & Juliano, o público pode esperar uma experiência ímpar.
+              <div className="text-gray-800 text-left space-y-2 mb-4">
+                <p className="font-semibold">INFORMATIVO DO SHOW</p>
+                <p>02 DE JANEIRO DE 2026</p>
+                <p>ARENA OPEN - CAMBORIÚ/SC</p>
+                <p>21H - ABERTURA DOS PORTÕES</p>
+                <p>00H - INÍCIO DOS SHOWS</p>
+                <p className="text-sm italic">*HORÁRIO SUJEITO A ALTERAÇÃO SEM AVISO PRÉVIO</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                CLASSIFICAÇÃO ETÁRIA
+              </h3>
+              <div className="text-gray-800 space-y-2">
+                <p><strong>Setores Arena e VIP:</strong> Menores com até 15 anos completos, somente acompanhados dos pais. Menores com 16 e 17 anos desacompanhados dos pais deverão apresentar Autorização com assinatura reconhecida em cartório.</p>
+                <p><strong>Setor Premium Open Bar:</strong> Não é permitida a entrada de menores de 18 anos.</p>
+                <p className="text-red-600 font-medium">OBS: É EXPRESSAMENTE PROIBIDO CONSUMO E VENDA DE BEBIDAS ALCOÓLICAS PARA MENORES DE 18 ANOS.</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                DESCRITIVO DOS SETORES
+              </h3>
+              <div className="space-y-4 text-gray-800">
+                <div>
+                  <p className="font-semibold text-yellow-600">FRONTSTAGE OPEN FOOD</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    <li>Espaço limitado, exclusivo e privilegiado com acesso à frente do palco</li>
+                    <li>Ao entrar no evento você receberá um copo exclusivo do setor</li>
+                    <li>Open Food completo com: Massas, risotos e doces</li>
+                    <li>Área de convivência</li>
+                    <li>Bares e banheiros no setor</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-purple-600">PREMIUM OPEN BAR</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    <li>Open Bar de Água, cerveja, refrigerante, suco, vodka</li>
+                    <li>Entrada exclusiva</li>
+                    <li>Acesso à frente do palco</li>
+                    <li>Banheiros exclusivos no setor</li>
+                    <li>Área de Convivência com 2.000m², exclusivo do Setor Premium</li>
+                    <li>Ambiente coberto e climatizado</li>
+                    <li>Lounge para descanso</li>
+                    <li>Transmissão Simultânea dos Shows em Telão de LED</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-blue-600">ÁREA VIP</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    <li>Visão frontal do palco</li>
+                    <li>Acesso à passarela</li>
+                    <li>Área de convivência</li>
+                    <li>Banheiros exclusivos no setor</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-green-600">ARENA</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    <li>Visão frontal do palco</li>
+                    <li>Área de convivência</li>
+                    <li>Setor com o menor custo</li>
+                    <li>Bares e banheiros no setor</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                INFORMAÇÕES IMPORTANTES
+              </h3>
+              <div className="space-y-3 text-gray-800 text-sm">
+                <p>• Este evento poderá ser gravado, filmado ou fotografado. Ao participar do evento o portador do ingresso concorda e autoriza a utilização gratuita de sua imagem por prazo indeterminado.</p>
+                <p>• É proibido a entrada no evento com copos, latas, cadeiras, bancos, objetos pontiagudos e/ou cortantes, guarda-chuvas, armas de fogo, cigarros eletrônicos, dispositivos explosivos, objetos de vidro e/ou metal, drones.</p>
+                <p>• Para sua segurança este evento conta com Guarda-volumes. Cuide dos seus pertences, não nos responsabilizamos por objetos perdidos durante o evento.</p>
+                <p>• A entrada de menores é proibida nas áreas de Open Bar.</p>
+                <p>• Não há circulação de público entre os setores, exceto equipe em trabalho.</p>
+                <p>• Chegue cedo, evite filas, e divirta-se.</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <h3 className="text-lg font-bold mb-2 text-green-800">
+                🌱 ESTE SHOW VAI TER COPO ECOLÓGICO!
+              </h3>
+              <p className="text-sm text-green-700">
+                São copos 100% recicláveis, resistentes e duráveis. Você deverá adquirir para consumir bebidas no evento. 
+                Ao final do evento, a escolha é sua: ou devolve e é ressarcido ou leva para casa de recordação!
               </p>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4 text-gray-900 text-center">
-                Dúvidas Frequentes:
-              </h3>
-
-              <div className="space-y-4 text-gray-800">
-                <div>
-                  <p className="font-semibold">Classificação etária?</p>
-                  <p>R. 18 anos.</p>
-                </div>
-
-                <div>
-                  <p className="font-semibold">Qual horário de abertura dos portões do evento?</p>
-                  <p>R. A abertura está prevista para às 15 horas.</p>
-                </div>
-
-                <div>
-                  <p className="font-semibold">Terá estacionamento?</p>
-                  <p>R. Sim, terceirizado. A produção do evento não se responsabiliza pelos veículos deixados nos arredores do evento.</p>
-                </div>
-
-                <div>
-                  <p className="font-semibold">Terá acesso PCD? Qual Setor?</p>
-                  <p>R. Sim. Gramado. PCD e acompanhante pagam Meia-Entrada.</p>
-                </div>
-              </div>
+            <div className="text-center text-sm text-gray-600">
+              <p className="font-medium">CONTATO ATENDIMENTO</p>
+              <p>(48) 98820-5632</p>
+              <p>@gdoproducoes</p>
             </div>
           </div>
         </div>
