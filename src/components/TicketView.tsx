@@ -133,30 +133,64 @@ const TicketView = ({
     let cancelled = false;
 
     const prepareCover = async () => {
-      try {
-        const response = await fetch(coverUrl);
-        if (!response.ok) {
+      const setFallback = () => {
+        if (!cancelled) {
           setSafeCoverUrl(coverUrl);
+        }
+      };
+
+      try {
+        // Try to fetch the image directly
+        const response = await fetch(coverUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const reader = new FileReader();
+
+          reader.onloadend = () => {
+            if (cancelled) return;
+
+            if (typeof reader.result === "string") {
+              setSafeCoverUrl(reader.result);
+            } else {
+              setFallback();
+            }
+          };
+
+          reader.readAsDataURL(blob);
+          return;
+        }
+      } catch (error) {
+        console.error("Erro ao preparar a imagem de capa do evento:", error);
+      }
+
+      // Fallback: use backend image proxy to bypass CORS and get a Data URL
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        if (!supabaseUrl) {
+          setFallback();
           return;
         }
 
-        const blob = await response.blob();
-        const reader = new FileReader();
+        const functionsBase = supabaseUrl.replace(".supabase.co", ".functions.supabase.co");
+        const proxyUrl = `${functionsBase}/functions/v1/image-proxy?url=${encodeURIComponent(coverUrl)}`;
 
-        reader.onloadend = () => {
-          if (cancelled) return;
+        const proxyResponse = await fetch(proxyUrl);
+        if (!proxyResponse.ok) {
+          setFallback();
+          return;
+        }
 
-          if (typeof reader.result === "string") {
-            setSafeCoverUrl(reader.result);
+        const result = (await proxyResponse.json()) as { dataUrl?: string };
+        if (!cancelled) {
+          if (result.dataUrl && typeof result.dataUrl === "string") {
+            setSafeCoverUrl(result.dataUrl);
           } else {
-            setSafeCoverUrl(coverUrl);
+            setFallback();
           }
-        };
-
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error("Erro ao preparar a imagem de capa do evento:", error);
-        setSafeCoverUrl(coverUrl);
+        }
+      } catch (proxyError) {
+        console.error("Erro ao carregar imagem via proxy:", proxyError);
+        setFallback();
       }
     };
 
@@ -173,6 +207,7 @@ const TicketView = ({
 
   return (
     <div
+      data-ticket-root
       className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto"
       id={`ticket-${ticketIndex}`}
     >

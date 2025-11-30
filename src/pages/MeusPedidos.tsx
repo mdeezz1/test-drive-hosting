@@ -221,6 +221,12 @@ const MeusPedidos = () => {
       clone.style.backgroundColor = "#ffffff";
       document.body.appendChild(clone);
 
+      const ticketRoot = clone.querySelector("[data-ticket-root]") as HTMLDivElement | null;
+      if (ticketRoot) {
+        ticketRoot.style.maxWidth = "100%";
+        ticketRoot.style.width = "100%";
+      }
+
       await inlineTicketImages(clone);
 
       const canvas = await html2canvas(clone, {
@@ -299,6 +305,12 @@ const MeusPedidos = () => {
         clone.style.transform = "none";
         clone.style.backgroundColor = "#ffffff";
         document.body.appendChild(clone);
+
+        const ticketRoot = clone.querySelector("[data-ticket-root]") as HTMLDivElement | null;
+        if (ticketRoot) {
+          ticketRoot.style.maxWidth = "100%";
+          ticketRoot.style.width = "100%";
+        }
 
         await inlineTicketImages(clone);
 
