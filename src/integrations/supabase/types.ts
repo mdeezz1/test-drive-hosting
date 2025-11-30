@@ -32,6 +32,7 @@ export type Database = {
           map_url: string | null
           name: string
           opening_time: string | null
+          show_on_home: boolean
           slug: string
           updated_at: string
           youtube_url: string | null
@@ -53,6 +54,7 @@ export type Database = {
           map_url?: string | null
           name: string
           opening_time?: string | null
+          show_on_home?: boolean
           slug: string
           updated_at?: string
           youtube_url?: string | null
@@ -74,6 +76,7 @@ export type Database = {
           map_url?: string | null
           name?: string
           opening_time?: string | null
+          show_on_home?: boolean
           slug?: string
           updated_at?: string
           youtube_url?: string | null
