@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Ingressos from "./pages/Ingressos";
+import EventPage from "./pages/EventPage";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import MeusDados from "./pages/MeusDados";
@@ -26,7 +27,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            {/* Legacy route for existing event */}
             <Route path="/ahh-verao-henrique-e-juliano-nattan" element={<Ingressos />} />
+            {/* Dynamic event route */}
+            <Route path="/e/:slug" element={<EventPage />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/pagamento-aprovado" element={<PaymentSuccess />} />
             <Route path="/ingressos" element={<Navigate to="/ahh-verao-henrique-e-juliano-nattan" replace />} />

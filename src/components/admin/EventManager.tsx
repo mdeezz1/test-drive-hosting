@@ -491,19 +491,29 @@ const EventManager = () => {
 
                 <TabsContent value="location" className="space-y-4 mt-4">
                   <div>
-                    <Label className="text-slate-300 flex items-center gap-2"><MapPin className="h-4 w-4" /> Google Maps Embed URL</Label>
+                    <Label className="text-slate-300 flex items-center gap-2"><MapPin className="h-4 w-4" /> Google Maps Embed</Label>
                     <Textarea 
                       value={eventForm.google_maps_embed} 
-                      onChange={(e) => setEventForm({ ...eventForm, google_maps_embed: e.target.value })} 
-                      placeholder="Cole a URL de embed do Google Maps aqui..." 
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        // Extract URL from iframe code if pasted
+                        if (value.includes('<iframe') && value.includes('src=')) {
+                          const srcMatch = value.match(/src=["']([^"']+)["']/);
+                          if (srcMatch) {
+                            value = srcMatch[1];
+                          }
+                        }
+                        setEventForm({ ...eventForm, google_maps_embed: value });
+                      }}
+                      placeholder="Cole o código do iframe OU apenas a URL do Google Maps aqui..." 
                       className="bg-slate-700 border-slate-600 text-white" 
                       rows={3}
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      Vá ao Google Maps → Compartilhar → Incorporar mapa → Copie apenas a URL do src
+                      Vá ao Google Maps → Compartilhar → Incorporar mapa → Cole o código completo (a URL será extraída automaticamente)
                     </p>
                   </div>
-                  {eventForm.google_maps_embed && (
+                  {eventForm.google_maps_embed && eventForm.google_maps_embed.startsWith('http') && (
                     <div className="rounded-lg overflow-hidden border border-slate-600">
                       <iframe 
                         src={eventForm.google_maps_embed} 
@@ -512,6 +522,7 @@ const EventManager = () => {
                         style={{ border: 0 }} 
                         allowFullScreen 
                         loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
                       />
                     </div>
                   )}
@@ -521,6 +532,11 @@ const EventManager = () => {
                     value={eventForm.map_url}
                     description="Imagem estática do mapa (se não usar embed)"
                   />
+                  <div className="p-3 bg-slate-700 rounded-lg">
+                    <p className="text-sm text-slate-300">
+                      <strong>URL do evento:</strong> /e/{eventForm.slug || 'slug-do-evento'}
+                    </p>
+                  </div>
                 </TabsContent>
               </Tabs>
 
