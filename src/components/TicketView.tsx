@@ -215,8 +215,8 @@ const TicketView = ({
       className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto"
       id={`ticket-${ticketIndex}`}
     >
-      {/* Header with Logo and Favorecido */}
-      <div className="flex justify-between items-start mb-4 gap-4">
+      {/* Header with Logo */}
+      <div className="flex justify-between items-start mb-4">
         <div>
           <p className="text-sm text-gray-600">
             {format(paidDate, "dd/MM/yy, HH:mm", { locale: ptBR })}
@@ -224,12 +224,6 @@ const TicketView = ({
           <p className="text-sm text-gray-500">E-Ticket - Guichê Web</p>
         </div>
         <img src={guichewebLogoFull} alt="Guichê Web" className="h-10" />
-        <div className="text-right">
-          <p className="text-sm text-gray-600">Favorecido:</p>
-          <p className="font-bold text-green-600 text-sm">{customerName}</p>
-          <p className="text-xs text-gray-600">CPF: {formatCPF(customerCpf)}</p>
-          <p className="text-xs text-gray-600">{formatEmail(customerEmail)}</p>
-        </div>
       </div>
 
       {/* Event Title */}
@@ -291,9 +285,13 @@ const TicketView = ({
           <p className="text-sm text-gray-600">CPF: {formatCPF(customerCpf)}</p>
           <p className="text-sm text-gray-600">{formatEmail(customerEmail)}</p>
         </div>
-        {/* QR Code on the right */}
-        <div className="flex flex-col items-end justify-start">
-          <canvas ref={qrRef} className="ml-auto" />
+        {/* Favorecido and QR Code on the right */}
+        <div className="flex flex-col items-start">
+          <p className="text-sm text-gray-600">Favorecido:</p>
+          <p className="font-bold text-green-600 text-sm">{customerName}</p>
+          <p className="text-xs text-gray-600">CPF: {formatCPF(customerCpf)}</p>
+          <p className="text-xs text-gray-600 mb-4">{formatEmail(customerEmail)}</p>
+          <canvas ref={qrRef} />
           <p className="text-xs text-gray-600 mt-2">Pedido: {orderNumber}</p>
           <p className="text-xs text-gray-600">Código: {ticketCode}</p>
         </div>
