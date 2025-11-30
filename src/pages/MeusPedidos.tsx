@@ -155,6 +155,51 @@ const MeusPedidos = () => {
     }
   };
 
+  const inlineTicketImages = async (ticketElement: HTMLDivElement) => {
+    const images = Array.from(ticketElement.getElementsByTagName("img"));
+
+    await Promise.all(
+      images.map(async (img) => {
+        const src = img.getAttribute("src");
+        if (!src || src.startsWith("data:")) return;
+
+        try {
+          const response = await fetch(src);
+          if (!response.ok) return;
+
+          const blob = await response.blob();
+          const reader = new FileReader();
+
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            reader.onloadend = () => {
+              if (typeof reader.result === "string") {
+                resolve(reader.result);
+              } else {
+                reject(new Error("Falha ao converter imagem para Data URL"));
+              }
+            };
+
+            reader.onerror = () => reject(new Error("Erro ao ler imagem"));
+            reader.readAsDataURL(blob);
+          });
+
+          img.src = dataUrl;
+
+          await new Promise<void>((resolve) => {
+            if (img.complete) {
+              resolve();
+            } else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao preparar imagem para o PDF:", error);
+        }
+      })
+    );
+  };
+
   const generatePDF = async (order: Order, ticketIndex: number) => {
     setIsGeneratingPdf(true);
     
@@ -164,6 +209,8 @@ const MeusPedidos = () => {
         toast.error("Erro ao gerar PDF");
         return;
       }
+
+      await inlineTicketImages(ticketElement);
 
       const canvas = await html2canvas(ticketElement, {
         scale: 2,
@@ -230,6 +277,8 @@ const MeusPedidos = () => {
       for (let i = 0; i < totalTickets; i++) {
         const ticketElement = ticketRefs.current[`${order.id}-${i}`];
         if (!ticketElement) continue;
+
+        await inlineTicketImages(ticketElement);
 
         const canvas = await html2canvas(ticketElement, {
           scale: 2,
