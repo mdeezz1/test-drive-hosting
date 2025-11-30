@@ -57,26 +57,25 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        request: {
-          amount: Math.round(amount * 100), // Convert to cents
-          payment_method: 'pix',
-          external_id: transactionId,
-          description: description.substring(0, 255),
-          customer: {
-            name: customerName,
-            email: customerEmail,
-            document: {
-              type: 'cpf',
-              number: customerCpf,
-            },
-            phone: {
-              country_code: '55',
-              number: customerPhone,
-            },
+        Amount: Math.round(amount * 100), // Convert to cents
+        PaymentMethod: 'pix',
+        ExternalId: transactionId,
+        Description: description.substring(0, 255),
+        Customer: {
+          Name: customerName,
+          Email: customerEmail,
+          Document: {
+            Type: 'cpf',
+            Number: customerCpf,
           },
-          pix: {
-            expires_in: 1800, // 30 minutes in seconds
-          }
+          Phone: customerPhone,
+        },
+        Pix: {
+          ExpiresIn: 1800, // 30 minutes in seconds
+        },
+        Metadata: {
+          source: 'guicheweb',
+          event: 'ahh-verao'
         }
       }),
     });
