@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
-import { MapPin, Ticket, Instagram, Plus, Minus, Loader2, Youtube, Map, Info } from "lucide-react";
+import { MapPin, Ticket, Instagram, Plus, Minus, Loader2, Youtube, Map, Info, AlertTriangle } from "lucide-react";
 import { FaWhatsapp, FaFacebookF, FaFacebookMessenger, FaXTwitter } from "react-icons/fa6";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -18,10 +19,11 @@ interface TicketType {
   color: string;
 }
 const Ingressos = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [cartTotal, setCartTotal] = useState(0);
-  const [couponCode, setCouponCode] = useState("");
+  const [cartTotalWithFees, setCartTotalWithFees] = useState(0);
   const [expandedSectors, setExpandedSectors] = useState<Record<string, boolean>>({});
   const eventData = {
     name: "Ahh Verão - Henrique e Juliano + Nattan",
@@ -144,13 +146,17 @@ const Ingressos = () => {
   }, []);
   useEffect(() => {
     let total = 0;
+    let totalWithFees = 0;
     Object.entries(cart).forEach(([ticketId, quantity]) => {
-      const ticket = tickets.find(t => t.id === ticketId);
-      if (ticket) {
-        total += ticket.price * quantity;
+      const sector = ticketSectors.find(s => s.variants.some(v => v.id === ticketId));
+      const variant = sector?.variants.find(v => v.id === ticketId);
+      if (variant) {
+        total += variant.price * quantity;
+        totalWithFees += (variant.price + variant.fee) * quantity;
       }
     });
     setCartTotal(total);
+    setCartTotalWithFees(totalWithFees);
   }, [cart]);
   const handleShare = (platform: string) => {
     const shareUrl = window.location.href;
@@ -180,110 +186,73 @@ const Ingressos = () => {
   const getTotalItems = () => {
     return Object.values(cart).reduce((sum, qty) => sum + qty, 0);
   };
-  const canAddMore = () => {
-    return getTotalItems() < 2;
-  };
-  const getSelectedCategory = () => {
-    const categories = Object.keys(cart).filter(key => cart[key] > 0);
-    return categories.length > 0 ? categories[0] : null;
-  };
+
   const updateQuantity = (ticketId: string, change: number) => {
     setCart(prev => {
       const currentQty = prev[ticketId] || 0;
       const newQty = Math.max(0, currentQty + change);
       const ticket = tickets.find(t => t.id === ticketId);
+      
       if (ticket && newQty > ticket.available) {
         toast.error("Quantidade não disponível");
         return prev;
       }
-      const selectedCategory = getSelectedCategory();
-      if (change > 0 && selectedCategory && selectedCategory !== ticketId && currentQty === 0) {
-        toast.error("Você pode comprar apenas uma classe de ingresso por vez", {
-          description: "Remova os ingressos do carrinho para adicionar outra categoria",
-          duration: 4000
-        });
-        return prev;
-      }
-      if (change > 0 && !canAddMore()) {
-        toast.error("Você pode comprar no máximo 2 ingressos no total");
-        return prev;
-      }
+      
       if (newQty === 0) {
-        const {
-          [ticketId]: _,
-          ...rest
-        } = prev;
+        const { [ticketId]: _, ...rest } = prev;
         return rest;
       }
+      
       if (change > 0 && currentQty === 0) {
         toast.success("Ingresso adicionado ao carrinho!");
       }
-      return {
-        ...prev,
-        [ticketId]: newQty
-      };
+      
+      return { ...prev, [ticketId]: newQty };
     });
   };
-  const checkoutLinks: Record<string, Record<number, string>> = {
-    // Links de checkout serão configurados após integração com FreePay
-    'frontstage-inteira': {
-      1: '',
-      2: ''
-    },
-    'premium-inteira': {
-      1: '',
-      2: ''
-    },
-    'vip-inteira': {
-      1: '',
-      2: ''
-    },
-    'vip-meia': {
-      1: '',
-      2: ''
-    },
-    'vip-solidario': {
-      1: '',
-      2: ''
-    },
-    'arena-inteira': {
-      1: '',
-      2: ''
-    },
-    'arena-meia': {
-      1: '',
-      2: ''
-    },
-    'arena-solidario': {
-      1: '',
-      2: ''
-    },
-    'arena-pcd': {
-      1: '',
-      2: ''
-    }
-  };
   const handleCheckout = () => {
-    const selectedCategory = getSelectedCategory();
     const totalQuantity = getTotalItems();
-    if (!selectedCategory || totalQuantity === 0) {
+    if (totalQuantity === 0) {
       toast.error("Adicione ingressos ao carrinho");
       return;
     }
-    const checkoutUrl = checkoutLinks[selectedCategory]?.[totalQuantity];
-    if (!checkoutUrl || checkoutUrl === '') {
-      toast.error("Link de checkout não configurado para esta seleção");
+    
+    // Check if total exceeds R$1000
+    if (cartTotalWithFees > 1000) {
+      toast.error("Compras acima de R$ 1.000,00 estão temporariamente indisponíveis", {
+        description: "Para evitar golpes de reembolso (MED), compras acima desse valor precisam ser feitas em mais de uma transação.",
+        duration: 6000,
+        icon: <AlertTriangle className="h-5 w-5 text-yellow-500" />
+      });
       return;
     }
-    window.location.href = checkoutUrl;
+    
+    // Build cart items for checkout
+    const cartItems = Object.entries(cart)
+      .filter(([_, qty]) => qty > 0)
+      .map(([ticketId, quantity]) => {
+        const sector = ticketSectors.find(s => s.variants.some(v => v.id === ticketId));
+        const variant = sector?.variants.find(v => v.id === ticketId);
+        return {
+          id: ticketId,
+          name: eventData.name,
+          section: sector?.section || '',
+          variant: variant?.name || '',
+          price: variant?.price || 0,
+          fee: variant?.fee || 0,
+          quantity
+        };
+      });
+    
+    navigate('/checkout', {
+      state: {
+        items: cartItems,
+        total: cartTotal,
+        totalWithFees: cartTotalWithFees
+      }
+    });
   };
-  const applyCoupon = () => {
-    if (!couponCode.trim()) {
-      toast.error("Digite um código de cupom");
-      return;
-    }
-    toast.info("Cupom não encontrado");
-  };
+
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', {
       style: 'currency',
@@ -443,7 +412,7 @@ const Ingressos = () => {
                               <span className="w-12 text-center font-bold text-gray-900">
                                 {cart[variant.id] || 0}
                               </span>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gray-100" onClick={() => updateQuantity(variant.id, 1)} disabled={!canAddMore() && (!cart[variant.id] || cart[variant.id] === 0)}>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gray-100" onClick={() => updateQuantity(variant.id, 1)}>
                                 <Plus className="h-4 w-4" />
                               </Button>
                             </div>
@@ -639,10 +608,10 @@ const Ingressos = () => {
                   {getTotalItems()} {getTotalItems() === 1 ? 'ITEM' : 'ITENS'} NO CARRINHO
                 </p>
                 <p className="text-2xl font-bold text-white mb-1">
-                  {formatCurrency(cartTotal)}
+                  {formatCurrency(cartTotalWithFees)}
                 </p>
                 <p className="text-sm text-white">
-                  Taxa: R$ 0,00
+                  (Ingressos: {formatCurrency(cartTotal)} + Taxas: {formatCurrency(cartTotalWithFees - cartTotal)})
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
