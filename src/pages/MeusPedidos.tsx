@@ -295,6 +295,23 @@ const MeusPedidos = () => {
                   <div className="space-y-4">
                     {tickets.map(({ ticketIndex, item }) => (
                       <div key={`${order.id}-${ticketIndex}`} className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        {/* Download Button */}
+                        <div className="bg-gray-50 border-b p-4 flex justify-end">
+                          <Button
+                            onClick={() => generatePDF(order, ticketIndex)}
+                            disabled={isGeneratingPdf}
+                            variant="outline"
+                            className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                          >
+                            {isGeneratingPdf ? (
+                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                            ) : (
+                              <Download className="h-5 w-5 mr-2" />
+                            )}
+                            Baixar Este Ingresso
+                          </Button>
+                        </div>
+
                         {/* Ticket Content */}
                         <div 
                           ref={(el) => ticketRefs.current[`${order.id}-${ticketIndex}`] = el}
@@ -312,23 +329,6 @@ const MeusPedidos = () => {
                             totalTickets={totalTickets}
                             eventData={eventData}
                           />
-                        </div>
-
-                        {/* Download Button */}
-                        <div className="bg-gray-50 border-t p-4 flex justify-end">
-                          <Button
-                            onClick={() => generatePDF(order, ticketIndex)}
-                            disabled={isGeneratingPdf}
-                            variant="outline"
-                            className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                          >
-                            {isGeneratingPdf ? (
-                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                            ) : (
-                              <Download className="h-5 w-5 mr-2" />
-                            )}
-                            Baixar Este Ingresso
-                          </Button>
                         </div>
                       </div>
                     ))}
