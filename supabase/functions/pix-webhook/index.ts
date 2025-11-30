@@ -112,20 +112,22 @@ serve(async (req) => {
     
     console.log('Received FreePay webhook:', JSON.stringify(payload));
 
-    // FreePay webhook payload structure
-    const transactionId = payload.id || payload.transaction_id || payload.data?.id;
-    const status = payload.status || payload.data?.status;
-    const amount = payload.amount || payload.data?.amount;
+    // FreePay webhook payload structure - fields come in PascalCase
+    const transactionId = payload.Id || payload.id || payload.transaction_id || payload.data?.id;
+    const status = payload.Status || payload.status || payload.data?.status;
+    const amount = payload.Amount || payload.amount || payload.data?.amount;
+    const paidAt = payload.PaidAt || payload.paid_at;
+    const customer = payload.Customer || payload.customer || payload.data?.customer || {};
+    const metadata = payload.Metadata || payload.metadata || payload.data?.metadata || {};
 
-    console.log('Parsed webhook data:', { transactionId, status, amount });
+    console.log('Parsed webhook data:', { transactionId, status, amount, paidAt });
 
     // Check if payment was confirmed (PAID status)
     if (status === 'PAID' || status === 'paid' || status === 'approved') {
       console.log('Payment confirmed! Transaction:', transactionId);
       
-      // Extract customer and product data from metadata if available
-      const metadata = payload.metadata || payload.data?.metadata || {};
-      const customer = payload.customer || payload.data?.customer || {};
+      // Amount comes in reais from webhook, convert to cents
+      const amountInCents = typeof amount === 'number' ? Math.round(amount * 100) : amount;
       
       // Send paid notification to Utmify
       const utmifyResult = await sendToUtmify({
@@ -135,19 +137,19 @@ serve(async (req) => {
         approvedDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
         refundedAt: null,
         customer: {
-          name: customer.name || metadata.customerName || 'Cliente',
-          email: customer.email || metadata.customerEmail || '',
-          phone: customer.phone || metadata.customerPhone || '',
-          document: customer.document?.number || metadata.customerCpf || ''
+          name: customer.name || customer.Name || metadata.customerName || 'Cliente',
+          email: customer.email || customer.Email || metadata.customerEmail || '',
+          phone: customer.phone || customer.Phone || metadata.customerPhone || '',
+          document: customer.document?.number || customer.Document?.Number || metadata.customerCpf || ''
         },
         products: metadata.products || [{
           id: 'ticket',
           name: 'Ingresso Ahh Verão',
           quantity: 1,
-          priceInCents: amount
+          priceInCents: amountInCents
         }],
-        totalPriceInCents: amount,
-        gatewayFeeInCents: Math.round(amount * 0.0299) // ~3% fee estimate
+        totalPriceInCents: amountInCents,
+        gatewayFeeInCents: Math.round(amountInCents * 0.0299) // ~3% fee estimate
       });
 
       console.log('Utmify paid notification result:', utmifyResult);
@@ -167,8 +169,7 @@ serve(async (req) => {
     if (status === 'REFUNDED' || status === 'refunded') {
       console.log('Payment refunded! Transaction:', transactionId);
       
-      const metadata = payload.metadata || payload.data?.metadata || {};
-      const customer = payload.customer || payload.data?.customer || {};
+      const amountInCents = typeof amount === 'number' ? Math.round(amount * 100) : amount;
 
       const utmifyResult = await sendToUtmify({
         orderId: transactionId,
@@ -177,19 +178,19 @@ serve(async (req) => {
         approvedDate: metadata.approvedDate || null,
         refundedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
         customer: {
-          name: customer.name || metadata.customerName || 'Cliente',
-          email: customer.email || metadata.customerEmail || '',
-          phone: customer.phone || metadata.customerPhone || '',
-          document: customer.document?.number || metadata.customerCpf || ''
+          name: customer.name || customer.Name || metadata.customerName || 'Cliente',
+          email: customer.email || customer.Email || metadata.customerEmail || '',
+          phone: customer.phone || customer.Phone || metadata.customerPhone || '',
+          document: customer.document?.number || customer.Document?.Number || metadata.customerCpf || ''
         },
         products: metadata.products || [{
           id: 'ticket',
           name: 'Ingresso Ahh Verão',
           quantity: 1,
-          priceInCents: amount
+          priceInCents: amountInCents
         }],
-        totalPriceInCents: amount,
-        gatewayFeeInCents: Math.round(amount * 0.0299)
+        totalPriceInCents: amountInCents,
+        gatewayFeeInCents: Math.round(amountInCents * 0.0299)
       });
 
       console.log('Utmify refunded notification result:', utmifyResult);
