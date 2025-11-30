@@ -70,7 +70,7 @@ const Index = () => {
   const filteredEvents = events.filter(event => event.name.toLowerCase().includes(searchTerm.toLowerCase()) || event.location.toLowerCase().includes(searchTerm.toLowerCase()));
   return <div className="min-h-screen bg-[#F5F0E8]">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="shadow-sm sticky top-0 z-50 bg-black">
         <div className="container mx-auto px-4 py-3 bg-black">
           <div className="items-center justify-between flex flex-row gap-[16px] mx-[25px] px-[25px]">
             {/* Logo */}
@@ -216,11 +216,7 @@ const Index = () => {
             
             {/* Logo and App */}
             <div className="flex flex-col items-start lg:items-end gap-4">
-              <img 
-                alt="Guichê Web Logo" 
-                className="h-10" 
-                src="https://s3.guicheweb.com.br/nova_marca/logogw.png" 
-              />
+              <img alt="Guichê Web Logo" className="h-10" src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
               
               <div className="text-center lg:text-right">
                 <p className="text-xs text-gray-400 mb-2">COMPRE PELO APP</p>
