@@ -343,46 +343,263 @@ Cada ingresso contém:
 
 ---
 
-## 🚀 Como Configurar em Nova Conta
+## 🚀 Como Configurar em Nova Conta (Passo a Passo Completo)
 
-### 1. Criar Projeto no Lovable
-- Crie um novo projeto no Lovable
-- Habilite o Lovable Cloud
+### Passo 1: Criar Projeto no Lovable
 
-### 2. Importar Código
-- Conecte ao GitHub
-- Faça pull do repositório
+1. Acesse https://lovable.dev
+2. Faça login ou crie uma conta
+3. Clique em **"New Project"**
+4. Dê um nome ao projeto (ex: "GuicheWeb Ingressos")
+5. Aguarde o projeto ser criado
 
-### 3. Configurar Banco de Dados
-- Execute as migrações SQL acima
-- Crie as tabelas: events, ticket_types, orders
+### Passo 2: Habilitar Lovable Cloud
 
-### 4. Configurar Secrets
-No Lovable Cloud, adicione:
-- `FREEPAY_PUBLIC_KEY`
-- `FREEPAY_SECRET_KEY`
-- `UTMIFY_API_KEY`
-- `ADMIN_PASSWORD`
+1. No projeto criado, clique no ícone de **Cloud** (nuvem) na barra superior
+2. Clique em **"Enable Cloud"** ou **"Habilitar Cloud"**
+3. Aguarde a configuração (pode levar alguns segundos)
+4. O Cloud cria automaticamente um banco de dados PostgreSQL
 
-### 5. Configurar Storage
-- Crie bucket `event-images` (público)
+### Passo 3: Importar Código do GitHub
 
-### 6. Deploy
-- As edge functions são deployadas automaticamente
-- Publique o frontend
+1. Clique no botão **GitHub** no canto superior direito
+2. Clique em **"Connect to GitHub"**
+3. Autorize o Lovable a acessar sua conta GitHub
+4. Selecione o repositório que contém o código do GuicheWeb
+5. O código será sincronizado automaticamente
+
+**Alternativa (se não tiver GitHub):**
+- Copie os arquivos manualmente para o projeto
+- Use o chat do Lovable para criar cada arquivo
+
+### Passo 4: Criar Tabelas no Banco de Dados
+
+No chat do Lovable, peça para criar as tabelas. Cole este comando:
+
+```
+Crie as seguintes tabelas no banco de dados:
+
+1. Tabela events com campos: id, name, slug, event_date, event_time, opening_time, location, description, banner_url, cover_url, event_map_url, map_url, google_maps_embed, instagram_url, facebook_url, youtube_url, is_active, show_on_home, created_at, updated_at
+
+2. Tabela ticket_types com campos: id, event_id (referência para events), name, sector, price, fee, available, batch, color, description, is_active, sort_order, created_at, updated_at
+
+3. Tabela orders com campos: id, transaction_id, event_id (referência para events), customer_name, customer_cpf, customer_email, customer_phone, items (JSONB), total_amount, status, created_at, updated_at
+
+Habilite RLS em todas as tabelas com políticas públicas de leitura.
+```
+
+### Passo 5: Criar Bucket de Storage
+
+No chat do Lovable, peça:
+
+```
+Crie um bucket de storage chamado "event-images" que seja público para armazenar imagens dos eventos.
+```
 
 ---
 
-## 🔗 APIs Externas
+## 🔑 Configuração das APIs (MUITO IMPORTANTE)
 
-### FreePay Brasil
-- **Documentação:** https://freepaybrasil.com/docs
-- **Endpoint:** `https://api.freepaybrasil.com/v1/payment-transaction/create`
-- **Autenticação:** Basic Auth (PUBLIC_KEY:SECRET_KEY)
+### Configurar FreePay Brasil (Pagamento PIX)
+
+#### 1. Criar Conta na FreePay
+1. Acesse https://freepaybrasil.com
+2. Clique em **"Criar Conta"** ou **"Cadastre-se"**
+3. Preencha os dados da sua empresa/pessoa
+4. Verifique seu email
+5. Complete o cadastro com documentos (CNPJ ou CPF)
+
+#### 2. Obter Chaves da API
+1. Faça login no painel da FreePay
+2. Vá em **"Configurações"** ou **"Integrações"** ou **"API"**
+3. Encontre suas chaves:
+   - **PUBLIC_KEY** (chave pública)
+   - **SECRET_KEY** (chave secreta)
+4. Copie ambas as chaves
+
+#### 3. Configurar Webhook na FreePay
+1. No painel da FreePay, vá em **"Webhooks"** ou **"Notificações"**
+2. Adicione a URL do webhook:
+   ```
+   https://urktmzyjqcsuiyizumom.supabase.co/functions/v1/pix-webhook
+   ```
+   **ATENÇÃO:** Substitua `urktmzyjqcsuiyizumom` pelo ID do seu novo projeto Supabase!
+3. Selecione os eventos: `PAID`, `REFUNDED`, `EXPIRED`
+4. Salve
+
+#### 4. Adicionar Secrets no Lovable
+1. No Lovable, clique no ícone de **Cloud**
+2. Vá em **"Secrets"** ou **"Variáveis de Ambiente"**
+3. Adicione:
+   - Nome: `FREEPAY_PUBLIC_KEY` | Valor: (sua chave pública)
+   - Nome: `FREEPAY_SECRET_KEY` | Valor: (sua chave secreta)
+
+---
+
+### Configurar Utmify (Rastreamento de Vendas)
+
+#### 1. Criar Conta na Utmify
+1. Acesse https://utmify.com.br
+2. Clique em **"Criar Conta"**
+3. Preencha seus dados
+4. Confirme seu email
+
+#### 2. Obter API Key
+1. Faça login no painel da Utmify
+2. Vá em **"Configurações"** → **"API"** ou **"Integrações"**
+3. Gere ou copie sua **API Key**
+
+#### 3. Adicionar Secret no Lovable
+1. No Lovable Cloud, vá em Secrets
+2. Adicione:
+   - Nome: `UTMIFY_API_KEY` | Valor: (sua API key)
+
+---
+
+### Configurar Senha do Admin
+
+1. Escolha uma senha forte para o painel administrativo
+2. No Lovable Cloud, vá em Secrets
+3. Adicione:
+   - Nome: `ADMIN_PASSWORD` | Valor: (sua senha escolhida)
+
+**Exemplo de senha forte:** `GuicheWeb@2025!Secure`
+
+---
+
+## 🌐 Como Publicar/Hospedar o Site
+
+### Opção 1: Hospedagem no Lovable (Recomendado)
+
+1. No Lovable, clique no botão **"Publish"** (ícone de globo/web) no canto superior direito
+2. Clique em **"Publish"** ou **"Publicar"**
+3. Aguarde o deploy (alguns segundos)
+4. Você receberá uma URL como: `https://seu-projeto.lovable.app`
+
+#### Domínio Personalizado (Plano Pago)
+1. Após publicar, clique em **"Settings"** → **"Domains"**
+2. Clique em **"Add Custom Domain"**
+3. Digite seu domínio (ex: `www.guicheweb.com.br`)
+4. Siga as instruções para configurar o DNS:
+   - Adicione um registro CNAME apontando para o Lovable
+   - Ou adicione registros A conforme instruído
+
+### Opção 2: Hospedagem Externa (Vercel, Netlify, etc.)
+
+1. Conecte o repositório GitHub à Vercel/Netlify
+2. Configure as variáveis de ambiente:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+3. Deploy automático a cada push
+
+---
+
+## 📋 Checklist de Configuração
+
+Use esta lista para garantir que tudo está configurado:
+
+### Lovable/Cloud
+- [ ] Projeto criado no Lovable
+- [ ] Cloud habilitado
+- [ ] Código importado do GitHub
+
+### Banco de Dados
+- [ ] Tabela `events` criada
+- [ ] Tabela `ticket_types` criada
+- [ ] Tabela `orders` criada
+- [ ] RLS habilitado em todas as tabelas
+- [ ] Bucket `event-images` criado
+
+### FreePay (PIX)
+- [ ] Conta criada na FreePay
+- [ ] Conta verificada/aprovada
+- [ ] Chaves de API obtidas
+- [ ] Webhook configurado com URL correta
+- [ ] Secret `FREEPAY_PUBLIC_KEY` adicionada
+- [ ] Secret `FREEPAY_SECRET_KEY` adicionada
 
 ### Utmify
-- **Endpoint:** `https://api.utmify.com.br/api-credentials/orders`
-- **Autenticação:** Header `x-api-token`
+- [ ] Conta criada na Utmify
+- [ ] API Key obtida
+- [ ] Secret `UTMIFY_API_KEY` adicionada
+
+### Admin
+- [ ] Secret `ADMIN_PASSWORD` definida
+
+### Publicação
+- [ ] Site publicado
+- [ ] URL funcionando
+- [ ] Domínio personalizado configurado (opcional)
+
+---
+
+## 🧪 Testando a Configuração
+
+### 1. Testar Painel Admin
+1. Acesse: `https://seu-site.com/gw-admin-2025`
+2. Digite a senha do admin
+3. Verifique se consegue criar/editar eventos
+
+### 2. Testar Criação de Evento
+1. No painel admin, crie um evento de teste
+2. Adicione tipos de ingresso
+3. Verifique se aparece na página inicial
+
+### 3. Testar Pagamento PIX
+1. Acesse a página do evento
+2. Selecione ingressos
+3. Preencha dados de teste
+4. Gere o PIX
+5. Verifique se o QR Code aparece
+6. (Opcional) Faça um pagamento real de R$ 1,00 para testar
+
+### 4. Testar Busca de Pedidos
+1. Após um pagamento confirmado
+2. Acesse "Meus Ingressos"
+3. Busque pelo CPF ou email
+4. Verifique se os ingressos aparecem
+5. Teste o download do PDF
+
+---
+
+## 🔗 URLs Importantes das APIs
+
+### FreePay Brasil
+- **Site:** https://freepaybrasil.com
+- **Documentação:** https://freepaybrasil.com/docs
+- **Painel:** https://app.freepaybrasil.com
+- **Endpoint de Pagamento:** `POST https://api.freepaybrasil.com/v1/payment-transaction/create`
+- **Autenticação:** Basic Auth com `PUBLIC_KEY:SECRET_KEY` em Base64
+
+### Utmify
+- **Site:** https://utmify.com.br
+- **Painel:** https://app.utmify.com.br
+- **Endpoint de Pedidos:** `POST https://api.utmify.com.br/api-credentials/orders`
+- **Autenticação:** Header `x-api-token: SUA_API_KEY`
+
+---
+
+## ⚠️ Problemas Comuns e Soluções
+
+### PIX não gera
+- Verifique se as chaves FreePay estão corretas
+- Verifique se a conta FreePay está verificada/ativa
+- Veja os logs da edge function no Cloud
+
+### Webhook não funciona
+- Verifique se a URL do webhook está correta
+- Verifique se o ID do projeto Supabase está correto na URL
+- Teste manualmente enviando um POST para a URL
+
+### Pedidos não aparecem
+- Verifique se a tabela orders existe
+- Verifique as políticas RLS
+- Veja os logs do banco de dados
+
+### Imagens não carregam
+- Verifique se o bucket event-images existe
+- Verifique se o bucket está público
+- Verifique a URL das imagens
 
 ---
 
@@ -391,4 +608,5 @@ No Lovable Cloud, adicione:
 Para dúvidas sobre a implementação, consulte:
 - Código fonte no GitHub
 - Documentação do Lovable: https://docs.lovable.dev
-- Documentação do Supabase: https://supabase.com/docs
+- Documentação FreePay: https://freepaybrasil.com/docs
+- Documentação Utmify: https://utmify.com.br/docs
