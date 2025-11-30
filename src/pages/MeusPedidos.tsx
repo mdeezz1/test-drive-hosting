@@ -346,6 +346,8 @@ const MeusPedidos = () => {
           console.error("Erro ao adicionar capa no PDF:", error);
         }
       }
+
+      pdf.save(`ingresso-${order.transaction_id}-${ticketIndex + 1}.pdf`);
       
       toast.success("PDF gerado com sucesso!");
     } catch (err) {
