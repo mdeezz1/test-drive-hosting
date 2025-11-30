@@ -57,18 +57,26 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: Math.round(amount * 100), // Convert to cents
-        payment_method: 'pix',
-        external_id: transactionId,
-        description: description.substring(0, 255),
-        customer: {
-          name: customerName,
-          email: customerEmail,
-          document: customerCpf,
-          phone: customerPhone,
-        },
-        pix: {
-          expires_in: 1800, // 30 minutes in seconds
+        request: {
+          amount: Math.round(amount * 100), // Convert to cents
+          payment_method: 'pix',
+          external_id: transactionId,
+          description: description.substring(0, 255),
+          customer: {
+            name: customerName,
+            email: customerEmail,
+            document: {
+              type: 'cpf',
+              number: customerCpf,
+            },
+            phone: {
+              country_code: '55',
+              number: customerPhone,
+            },
+          },
+          pix: {
+            expires_in: 1800, // 30 minutes in seconds
+          }
         }
       }),
     });
