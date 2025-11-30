@@ -51,6 +51,7 @@ const TicketView = ({
   const barcodeRef = useRef<SVGSVGElement>(null);
   const [ticketCode, setTicketCode] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
+  const [safeCoverUrl, setSafeCoverUrl] = useState<string | undefined>(undefined);
 
   // Generate unique codes for each ticket
   useEffect(() => {
@@ -116,13 +117,63 @@ const TicketView = ({
   const openingTime = eventData?.openingTime?.slice(0, 5) || eventTime;
   const coverUrl = eventData?.coverUrl;
 
+  // Prepare a safe cover URL as Data URL to avoid CORS issues when generating PDFs
+  useEffect(() => {
+    if (!coverUrl) {
+      setSafeCoverUrl(undefined);
+      return;
+    }
+
+    // If it's already a Data URL, just use it
+    if (coverUrl.startsWith("data:")) {
+      setSafeCoverUrl(coverUrl);
+      return;
+    }
+
+    let cancelled = false;
+
+    const prepareCover = async () => {
+      try {
+        const response = await fetch(coverUrl);
+        if (!response.ok) {
+          setSafeCoverUrl(coverUrl);
+          return;
+        }
+
+        const blob = await response.blob();
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          if (cancelled) return;
+
+          if (typeof reader.result === "string") {
+            setSafeCoverUrl(reader.result);
+          } else {
+            setSafeCoverUrl(coverUrl);
+          }
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Erro ao preparar a imagem de capa do evento:", error);
+        setSafeCoverUrl(coverUrl);
+      }
+    };
+
+    prepareCover();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [coverUrl]);
+
   // Get ticket name from items
   const ticketName = items[0]?.name || "Ingresso";
   const ticketPrice = items[0]?.price || totalAmount;
 
   return (
     <div
-      className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto transform scale-90 sm:scale-100 origin-top"
+      className="bg-white text-black p-4 sm:p-6 max-w-md sm:max-w-3xl mx-auto"
       id={`ticket-${ticketIndex}`}
     >
       {/* Header */}
@@ -148,7 +199,7 @@ const TicketView = ({
         <div className="w-48 h-32 overflow-hidden rounded flex-shrink-0">
           {coverUrl ? (
             <img 
-              src={coverUrl} 
+              src={safeCoverUrl || coverUrl} 
               alt={eventName}
               className="w-full h-full object-cover"
             />
