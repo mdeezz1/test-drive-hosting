@@ -281,9 +281,13 @@ const EventPage = () => {
       <Navbar />
 
       {/* Hero Banner */}
-      <div className="relative mt-16">
+      <div className="relative mt-16 md:mt-16 lg:flex lg:justify-center lg:bg-gray-100">
         {event.banner_url ? (
-          <img src={event.banner_url} alt={event.name} className="w-full h-auto object-contain" />
+          <img 
+            src={event.banner_url} 
+            alt={event.name} 
+            className="w-full h-auto object-contain md:max-h-[350px] lg:max-h-[400px] md:object-cover lg:object-contain" 
+          />
         ) : (
           <div className="w-full h-48 bg-gradient-to-r from-gray-800 to-gray-600" />
         )}
@@ -291,8 +295,8 @@ const EventPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 -mt-20 md:-mt-24 relative z-10">
-        <div className="bg-white rounded-lg shadow-2xl p-4 md:p-8 mb-8 max-w-5xl mx-0 my-[75px]">
+      <div className="container mx-auto px-4 -mt-20 md:-mt-16 lg:-mt-12 relative z-10">
+        <div className="bg-white rounded-lg shadow-2xl p-4 md:p-6 lg:p-8 mb-8 max-w-5xl mx-auto my-[75px] md:my-8">
           <div className="flex flex-col lg:flex-row lg:gap-8 lg:items-start">
             <div className="flex justify-center lg:justify-start mb-6 lg:mb-0 lg:w-1/3">
               <div className="w-full max-w-[320px] lg:max-w-none">
@@ -325,16 +329,16 @@ const EventPage = () => {
             </div>
 
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:flex-1 space-y-4">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
                 {event.name}
               </h1>
 
-              <p className="text-xl md:text-2xl lg:text-3xl text-gray-700">
+              <p className="text-xl md:text-xl lg:text-2xl text-gray-700">
                 {formatDate(event.event_date)} - {formatTime(event.event_time)}H
               </p>
 
-              <p className="text-lg lg:text-xl text-gray-600 flex items-center justify-center lg:justify-start gap-2">
-                <MapPin className="h-5 w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+              <p className="text-lg md:text-base lg:text-lg text-gray-600 flex items-center justify-center lg:justify-start gap-2">
+                <MapPin className="h-5 w-5 flex-shrink-0" />
                 <span>{event.location}</span>
               </p>
 
@@ -379,12 +383,12 @@ const EventPage = () => {
 
         {/* Event Map */}
         {event.event_map_url && (
-          <div className="max-w-5xl mx-auto mb-8">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
+          <div className="max-w-5xl mx-auto mb-8 md:px-4 lg:px-8">
+            <h2 className="text-3xl md:text-2xl font-bold mb-6 text-center text-gray-900">
               MAPA DO EVENTO
             </h2>
-            <div className="rounded-lg overflow-hidden shadow-md">
-              <img src={event.event_map_url} alt="Mapa do Evento - Setores" className="w-full h-auto" />
+            <div className="rounded-lg overflow-hidden shadow-md md:max-w-2xl lg:max-w-3xl md:mx-auto">
+              <img src={event.event_map_url} alt="Mapa do Evento - Setores" className="w-full h-auto md:max-h-[400px] lg:max-h-[500px] object-contain" />
             </div>
           </div>
         )}
