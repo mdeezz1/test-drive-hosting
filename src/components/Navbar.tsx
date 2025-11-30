@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Home, User, HelpCircle } from "lucide-react";
+import { Menu, Home, User, HelpCircle, Search } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -7,11 +7,13 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 import UserMenuDialog from "./UserMenuDialog";
+import SearchOrdersDialog from "./SearchOrdersDialog";
 import { toast } from "sonner";
 
 const Navbar = () => {
   const { user } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOrdersOpen, setSearchOrdersOpen] = useState(false);
 
   const handleHelpClick = () => {
     toast.info("Envie sua dúvida para o email: sac@guicheweb.com.br", {
@@ -49,12 +51,19 @@ const Navbar = () => {
               <div className="py-4">
                 <nav className="flex flex-col gap-1">
                   <a
-                    href="/manifesto-musical-maracana-lote-extra"
+                    href="/ahh-verao-henrique-e-juliano-nattan"
                     className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors"
                   >
                     <Home className="h-5 w-5" />
                     <span className="text-base">Home</span>
                   </a>
+                  <button
+                    onClick={() => setSearchOrdersOpen(true)}
+                    className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors text-left w-full"
+                  >
+                    <Search className="h-5 w-5" />
+                    <span className="text-base">Buscar Pedidos</span>
+                  </button>
                   <button
                     onClick={() => setUserMenuOpen(true)}
                     className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors text-left w-full"
@@ -79,6 +88,7 @@ const Navbar = () => {
       </div>
 
       <UserMenuDialog open={userMenuOpen} onOpenChange={setUserMenuOpen} />
+      <SearchOrdersDialog open={searchOrdersOpen} onOpenChange={setSearchOrdersOpen} />
     </nav>
   );
 };

@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import MeusDados from "./pages/MeusDados";
 import MeusPedidos from "./pages/MeusPedidos";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/ahh-verao-henrique-e-juliano-nattan" element={<Ingressos />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/pagamento-aprovado" element={<PaymentSuccess />} />
             <Route path="/ingressos" element={<Navigate to="/ahh-verao-henrique-e-juliano-nattan" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/meus-dados" element={<MeusDados />} />
