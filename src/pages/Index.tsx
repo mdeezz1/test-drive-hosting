@@ -72,14 +72,14 @@ const Index = () => {
 
   return <div className="min-h-screen bg-[#F5F0E8]">
       {/* Header */}
-      <header className="shadow-sm sticky top-0 z-50 bg-black">
-        <div className="container mx-auto px-4 py-3 bg-black">
-          <div className="items-center justify-between flex flex-row gap-4 md:gap-[16px]">
+      <header className="shadow-sm sticky top-0 z-50 bg-black overflow-x-hidden">
+        <div className="w-full px-4 py-3 bg-black">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-[16px] max-w-full">
             {/* Logo */}
             <img alt="Guichê Web Logo" className="h-7 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
             {/* Search Bar - Desktop */}
-            <div className="flex-1 max-w-xl hidden md:block">
+            <div className="flex-1 max-w-xl hidden md:block min-w-0">
               <div className="relative bg-black px-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
@@ -88,20 +88,20 @@ const Index = () => {
             </div>
 
             {/* Mobile Search Icon + Login Button + Flag */}
-            <div className="flex items-center gap-3 md:gap-2">
+            <div className="flex items-center gap-2 md:gap-2 ml-auto">
               {/* Mobile Search Icon */}
               <button 
                 onClick={() => setMobileSearchOpen(!mobileSearchOpen)} 
-                className="md:hidden p-2 text-white hover:bg-gray-800 rounded-full transition-colors"
+                className="md:hidden p-2 text-white hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
               >
                 <Search className="h-5 w-5" />
               </button>
               
-              <Button variant="outline" onClick={() => navigate("/meus-pedidos")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-3 md:px-4">
+              <Button variant="outline" onClick={() => navigate("/meus-pedidos")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-2 md:px-4 whitespace-nowrap flex-shrink-0">
                 <Ticket className="h-4 w-4 mr-1 md:mr-2" />
                 MEUS INGRESSOS
               </Button>
-              <img src="/brazil-flag.png" alt="Brasil" className="h-5 md:h-6 w-auto" />
+              <img src="/brazil-flag.png" alt="Brasil" className="h-5 md:h-6 w-auto flex-shrink-0" />
             </div>
           </div>
 

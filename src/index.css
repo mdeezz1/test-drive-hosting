@@ -89,10 +89,10 @@
   }
 
   html {
-    @apply overflow-x-hidden;
+    @apply overflow-x-hidden bg-background;
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground overflow-x-hidden relative;
   }
 }
