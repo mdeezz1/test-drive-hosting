@@ -8,6 +8,8 @@ import { MapPin, Ticket, Instagram, Plus, Minus, Loader2, Youtube, Map, Info } f
 import { FaWhatsapp, FaFacebookF, FaFacebookMessenger, FaXTwitter } from "react-icons/fa6";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import eventCover from "@/assets/event-cover.jpg";
+import eventBanner from "@/assets/event-banner.png";
 
 interface TicketType {
   id: string;
@@ -29,8 +31,8 @@ const Ingressos = () => {
     date: "02/01/2026",
     time: "21:00H",
     location: "Arena Open Camboriú - CAMBORIÚ/SC",
-    image: "https://images.guicheweb.com.br/imagenseventos/30-09-2024_12-08-36.jpg",
-    cover: "https://images.guicheweb.com.br/imagenseventos/30-09-2024_12-04-05.jpg",
+    image: eventCover,
+    cover: eventBanner,
     logo: "",
     instagram: "https://www.instagram.com/gdoproducoes/",
     facebook: "https://www.facebook.com/gdoproducoes",
@@ -526,9 +528,6 @@ const Ingressos = () => {
               <p className="text-gray-800"><strong>ARENA OPEN</strong></p>
               <p className="text-gray-800"><strong>21H - ABERTURA DOS PORTÕES</strong></p>
               <p className="text-gray-800"><strong>00H - INÍCIO DOS SHOWS</strong></p>
-              <p className="text-gray-800"><strong>*HORÁRIO SUJEITO A ALTERAÇÃO SEM AVISO PRÉVIO</strong></p>
-              <p className="text-gray-800"><strong>PRÉ-VENDA EXCLUSIVA CLUBE GDO:</strong> 30 DE SETEMBRO NO</p>
-              <p className="text-gray-800"><strong>SITE:</strong> <a href="https://ahhverao.com.br" className="text-blue-600 underline">AHHVERAO.COM.BR</a> e <a href="https://guicheweb.com.br" className="text-blue-600 underline">GUICHEWEB.COM.BR</a></p>
             </div>
 
             <div>
