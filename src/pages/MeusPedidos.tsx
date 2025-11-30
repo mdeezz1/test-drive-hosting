@@ -200,6 +200,31 @@ const MeusPedidos = () => {
     );
   };
 
+  const waitForImagesToLoad = async (container: HTMLElement) => {
+    const images = Array.from(container.getElementsByTagName("img"));
+
+    await Promise.all(
+      images.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete && img.naturalWidth !== 0) {
+              resolve();
+              return;
+            }
+
+            const handleDone = () => {
+              img.removeEventListener("load", handleDone);
+              img.removeEventListener("error", handleDone);
+              resolve();
+            };
+
+            img.addEventListener("load", handleDone);
+            img.addEventListener("error", handleDone);
+          })
+      )
+    );
+  };
+
   const generatePDF = async (order: Order, ticketIndex: number) => {
     setIsGeneratingPdf(true);
     
@@ -228,6 +253,7 @@ const MeusPedidos = () => {
       }
 
       await inlineTicketImages(clone);
+      await waitForImagesToLoad(clone);
 
       const canvas = await html2canvas(clone, {
         scale: 2,
@@ -313,6 +339,7 @@ const MeusPedidos = () => {
         }
 
         await inlineTicketImages(clone);
+        await waitForImagesToLoad(clone);
 
         const canvas = await html2canvas(clone, {
           scale: 2,
