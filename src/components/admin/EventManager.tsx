@@ -686,13 +686,21 @@ const EventManager = () => {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-300">Setor *</Label>
-                <Input value={ticketForm.sector} onChange={(e) => setTicketForm({ ...ticketForm, sector: e.target.value })} placeholder="Ex: Arena, VIP, Camarote" className="bg-slate-700 border-slate-600 text-white" />
+                <Label className="text-slate-300">Setor/Categoria *</Label>
+                <Input value={ticketForm.sector} onChange={(e) => setTicketForm({ ...ticketForm, sector: e.target.value })} placeholder="Ex: AREA VIP, FRONT VIP, ARENA" className="bg-slate-700 border-slate-600 text-white" />
+                <p className="text-xs text-slate-500 mt-1">Área do evento (agrupa vários tipos de ingresso)</p>
               </div>
               <div>
-                <Label className="text-slate-300">Tipo *</Label>
-                <Input value={ticketForm.name} onChange={(e) => setTicketForm({ ...ticketForm, name: e.target.value })} placeholder="Ex: Inteira, Meia, Solidário" className="bg-slate-700 border-slate-600 text-white" />
+                <Label className="text-slate-300">Tipo de Ingresso *</Label>
+                <Input value={ticketForm.name} onChange={(e) => setTicketForm({ ...ticketForm, name: e.target.value })} placeholder="Ex: Inteira, Meia, Solidário, PCD" className="bg-slate-700 border-slate-600 text-white" />
+                <p className="text-xs text-slate-500 mt-1">Modalidade do ingresso dentro do setor</p>
               </div>
+            </div>
+            <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+              <p className="text-xs text-slate-400">
+                <strong className="text-slate-300">💡 Dica:</strong> Para criar múltiplos ingressos na mesma área, use o mesmo nome de setor. 
+                Ex: Setor "AREA VIP" com tipos "Inteira", "Meia", "Solidária", cada um com seu próprio preço.
+              </p>
             </div>
             <div>
               <Label className="text-slate-300">Descrição</Label>
@@ -722,10 +730,22 @@ const EventManager = () => {
                 <Input value={ticketForm.batch} onChange={(e) => setTicketForm({ ...ticketForm, batch: e.target.value })} placeholder="Ex: Lote 1" className="bg-slate-700 border-slate-600 text-white" />
               </div>
               <div>
-                <Label className="text-slate-300">Cor do Setor</Label>
-                <div className="flex gap-2">
-                  <Input type="color" value={ticketForm.color} onChange={(e) => setTicketForm({ ...ticketForm, color: e.target.value })} className="bg-slate-700 border-slate-600 w-14 h-10 p-1" />
-                  <Input value={ticketForm.color} onChange={(e) => setTicketForm({ ...ticketForm, color: e.target.value })} className="bg-slate-700 border-slate-600 text-white flex-1" />
+                <Label className="text-slate-300">Cor do Ícone (para combinar com mapa)</Label>
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={ticketForm.color} onChange={(e) => setTicketForm({ ...ticketForm, color: e.target.value })} className="bg-slate-700 border-slate-600 w-12 h-10 p-1 cursor-pointer" />
+                  <Input value={ticketForm.color} onChange={(e) => setTicketForm({ ...ticketForm, color: e.target.value })} className="bg-slate-700 border-slate-600 text-white w-24" />
+                </div>
+                <div className="flex gap-1 mt-2 flex-wrap">
+                  {['#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899', '#6B7280', '#000000'].map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setTicketForm({ ...ticketForm, color })}
+                      className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${ticketForm.color === color ? 'border-white scale-110' : 'border-slate-600'}`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

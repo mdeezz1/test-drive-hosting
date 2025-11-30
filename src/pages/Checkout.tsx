@@ -174,6 +174,23 @@ const Checkout = () => {
         return;
       }
 
+      // Check for specific errors in the response
+      if (data?.error) {
+        console.error('PIX error response:', data);
+        
+        // Check if it's a CPF-related error
+        const errorDetails = JSON.stringify(data.details || data.error || '').toLowerCase();
+        if (errorDetails.includes('cpf') || errorDetails.includes('document') || errorDetails.includes('invalid')) {
+          toast.error("CPF inválido ou incorreto. Por favor, revise o CPF informado.", {
+            duration: 5000,
+          });
+        } else {
+          toast.error("Erro ao gerar PIX. Verifique os dados informados e tente novamente.");
+        }
+        setIsLoading(false);
+        return;
+      }
+
       if (data?.qrCode && data?.copiaCola) {
         setPixData({
           qrCode: data.qrCode,
@@ -183,11 +200,14 @@ const Checkout = () => {
         setCurrentTransactionId(data.transactionId);
         setStep('pix');
       } else {
-        toast.error("Erro ao gerar PIX. Resposta inválida.");
+        // No QR code in response - likely a validation error
+        toast.error("Não foi possível gerar o PIX. Revise os dados informados, especialmente o CPF.", {
+          duration: 5000,
+        });
       }
     } catch (err) {
       console.error('Error generating PIX:', err);
-      toast.error("Erro ao gerar PIX. Tente novamente.");
+      toast.error("Erro ao gerar PIX. Verifique sua conexão e tente novamente.");
     } finally {
       setIsLoading(false);
     }
