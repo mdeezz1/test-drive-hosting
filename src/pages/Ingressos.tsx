@@ -52,7 +52,15 @@ const Ingressos = () => {
     variants: TicketVariant[];
   }
 
-  const ticketSectors: TicketSector[] = [
+  interface TicketVariantWithFee extends TicketVariant {
+    fee: number;
+  }
+
+  interface TicketSectorWithFee extends Omit<TicketSector, 'variants'> {
+    variants: TicketVariantWithFee[];
+  }
+
+  const ticketSectors: TicketSectorWithFee[] = [
     { 
       id: 'frontstage', 
       section: 'Frontstage Open Food', 
@@ -60,7 +68,7 @@ const Ingressos = () => {
       color: '#FFD700', 
       available: 50,
       variants: [
-        { id: 'frontstage-inteira', name: 'Inteira', price: 460 }
+        { id: 'frontstage-inteira', name: 'Inteira', price: 370, fee: 19.92 }
       ]
     },
     { 
@@ -70,7 +78,7 @@ const Ingressos = () => {
       color: '#9333EA', 
       available: 100,
       variants: [
-        { id: 'premium-inteira', name: 'Inteira', price: 157.50 }
+        { id: 'premium-inteira', name: 'Inteira', price: 285, fee: 14.68 }
       ]
     },
     { 
@@ -80,9 +88,9 @@ const Ingressos = () => {
       color: '#3B82F6', 
       available: 200,
       variants: [
-        { id: 'vip-inteira', name: 'Inteira', price: 160 },
-        { id: 'vip-meia', name: 'Meia', price: 80 },
-        { id: 'vip-solidario', name: 'Solidário (+1KG alimento)', price: 85 }
+        { id: 'vip-inteira', name: 'Inteira', price: 230, fee: 14.68 },
+        { id: 'vip-meia', name: 'Meia', price: 115, fee: 7.34 },
+        { id: 'vip-solidario', name: 'Solidário (+1KG alimento)', price: 130, fee: 11.53 }
       ]
     },
     { 
@@ -92,10 +100,10 @@ const Ingressos = () => {
       color: '#22C55E', 
       available: 500,
       variants: [
-        { id: 'arena-inteira', name: 'Inteira', price: 105 },
-        { id: 'arena-meia', name: 'Meia', price: 52.50 },
-        { id: 'arena-solidario', name: 'Solidário (+1KG alimento)', price: 57.50 },
-        { id: 'arena-pcd', name: 'PCD ou Acompanhante PCD', price: 52.50 }
+        { id: 'arena-inteira', name: 'Inteira', price: 170, fee: 12.47 },
+        { id: 'arena-meia', name: 'Meia', price: 85, fee: 7.42 },
+        { id: 'arena-solidario', name: 'Solidário (+1KG alimento)', price: 100, fee: 8.14 },
+        { id: 'arena-pcd', name: 'PCD ou Acompanhante PCD', price: 85, fee: 7.42 }
       ]
     }
   ];
@@ -387,33 +395,18 @@ const Ingressos = () => {
           </div>
         </div>
 
-        {/* Coupon Field */}
+        {/* Event Map */}
         <div className="max-w-5xl mx-auto mb-8">
-          <Card className="shadow-md">
-            <CardContent className="p-6">
-              <div className="text-center mb-4">
-                <h5 className="font-semibold text-lg mb-2">Possui código promocional?</h5>
-                <p className="text-sm text-gray-600">
-                  Insira abaixo e veja se temos algum ingresso especial pra você!
-                </p>
-              </div>
-              <div className="flex gap-2 max-w-md mx-auto">
-                <Input
-                  placeholder="Cupom de Desconto"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  className="flex-1"
-                />
-                <Button
-                  onClick={applyCoupon}
-                  variant="secondary"
-                  className="px-4"
-                >
-                  <Ticket className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
+            MAPA DO EVENTO
+          </h2>
+          <div className="rounded-lg overflow-hidden shadow-md">
+            <img 
+              src="/event-map.png" 
+              alt="Mapa do Evento - Setores" 
+              className="w-full h-auto"
+            />
+          </div>
         </div>
 
         {/* Tickets Section */}
@@ -470,15 +463,15 @@ const Ingressos = () => {
                       <div className="bg-gray-100 px-4 py-4 space-y-4">
                         {sector.variants.map((variant) => (
                           <div key={variant.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
-                            <div className="space-y-1 mb-3">
+                          <div className="space-y-1 mb-3">
                               <p className="text-sm text-gray-700">
                                 <span className="font-medium">Ingresso:</span> {sector.section} ({variant.name})
                               </p>
                               <p className="text-sm text-gray-700">
-                                <span className="font-medium">Lote:</span> 2. LOTE
+                                <span className="font-medium">Lote:</span> 1. LOTE
                               </p>
                               <p className="text-sm text-gray-700">
-                                <span className="font-medium">Valor + Taxa:</span> {formatCurrency(variant.price)} + R$ 0,00
+                                <span className="font-medium">Valor:</span> {formatCurrency(variant.price)} + {formatCurrency((variant as TicketVariantWithFee).fee)} de taxa
                               </p>
                             </div>
 
@@ -525,83 +518,68 @@ const Ingressos = () => {
           </h2>
 
           <div className="bg-gray-100 rounded-lg p-6 md:p-8 space-y-6">
-            <div className="text-center">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                HENRIQUE E JULIANO + NATTAN - AHH VERÃO
-              </h3>
-              <div className="text-gray-800 text-left space-y-2 mb-4">
-                <p className="font-semibold">INFORMATIVO DO SHOW</p>
-                <p>02 DE JANEIRO DE 2026</p>
-                <p>ARENA OPEN - CAMBORIÚ/SC</p>
-                <p>21H - ABERTURA DOS PORTÕES</p>
-                <p>00H - INÍCIO DOS SHOWS</p>
-                <p className="text-sm italic">*HORÁRIO SUJEITO A ALTERAÇÃO SEM AVISO PRÉVIO</p>
-              </div>
+            <div>
+              <p className="font-bold text-blue-600 underline">HENRIQUE E JULIANO NATTAN- AHH VERÃO</p>
+              <p className="font-bold text-blue-600 underline">INFORMATIVO DO SHOW</p>
+              <p className="text-gray-600">_______________________________________________</p>
+              <p className="text-gray-800"><strong>02 DE JANEIRO DE 2026</strong></p>
+              <p className="text-gray-800"><strong>ARENA OPEN</strong></p>
+              <p className="text-gray-800"><strong>21H - ABERTURA DOS PORTÕES</strong></p>
+              <p className="text-gray-800"><strong>00H - INÍCIO DOS SHOWS</strong></p>
+              <p className="text-gray-800"><strong>*HORÁRIO SUJEITO A ALTERAÇÃO SEM AVISO PRÉVIO</strong></p>
+              <p className="text-gray-800"><strong>PRÉ-VENDA EXCLUSIVA CLUBE GDO:</strong> 30 DE SETEMBRO NO</p>
+              <p className="text-gray-800"><strong>SITE:</strong> <a href="https://ahhverao.com.br" className="text-blue-600 underline">AHHVERAO.COM.BR</a> e <a href="https://guicheweb.com.br" className="text-blue-600 underline">GUICHEWEB.COM.BR</a></p>
+            </div>
+
+            <div>
+              <p className="text-gray-600">_______________________________________________</p>
+              <p className="font-bold text-blue-600 underline">CLASSIFICAÇÃO</p>
+              <p className="text-gray-800"><strong>Setores: Pista e Vip</strong> (Menores com até 15 anos completos, somente acompanhados dos pais. Menores, com 16 e 17 anos, desacompanhados dos pais, deverão apresentar Autorização com assinatura reconhecida em cartório). Não é permitida a entrada de menores de 18 anos no setor Premium Open Bar.</p>
+              <p className="text-gray-800 mt-2"><strong>OBS: É EXPRESSAMENTE PROIBIDO CONSUMO E VENDA DE BEBIDAS ALCOÓLICAS PARA MENORES DE 18 ANOS.</strong></p>
             </div>
 
             <Separator />
 
             <div>
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                CLASSIFICAÇÃO ETÁRIA
-              </h3>
-              <div className="text-gray-800 space-y-2">
-                <p><strong>Setores Arena e VIP:</strong> Menores com até 15 anos completos, somente acompanhados dos pais. Menores com 16 e 17 anos desacompanhados dos pais deverão apresentar Autorização com assinatura reconhecida em cartório.</p>
-                <p><strong>Setor Premium Open Bar:</strong> Não é permitida a entrada de menores de 18 anos.</p>
-                <p className="text-red-600 font-medium">OBS: É EXPRESSAMENTE PROIBIDO CONSUMO E VENDA DE BEBIDAS ALCOÓLICAS PARA MENORES DE 18 ANOS.</p>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                DESCRITIVO DOS SETORES
-              </h3>
+              <p className="font-bold text-blue-600 underline mb-2">DESCRITIVO DOS SETORES</p>
               <div className="space-y-4 text-gray-800">
                 <div>
-                  <p className="font-semibold text-yellow-600">FRONTSTAGE OPEN FOOD</p>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Espaço limitado, exclusivo e privilegiado com acesso à frente do palco</li>
-                    <li>Ao entrar no evento você receberá um copo exclusivo do setor</li>
-                    <li>Open Food completo com: Massas, risotos e doces</li>
-                    <li>Área de convivência</li>
-                    <li>Bares e banheiros no setor</li>
-                  </ul>
+                  <p className="font-bold text-yellow-600">- FRONTSTAGE OPEN FOOD</p>
+                  <p><strong>•Espaço limitado, exclusivo e privilegiado com acesso à frente do palco;</strong></p>
+                  <p><strong>•Ao entrar no evento você receberá um copo exclusivo do setor;</strong></p>
+                  <p><strong>•Open Food completo com: Massas, risotos e doces;</strong></p>
+                  <p><strong>•Área de convivência;</strong></p>
+                  <p><strong>•Bares e banheiros no setor.</strong></p>
+                  <p>*Serviço de open food da abertura dos portões até o término dos shows nacionais.</p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-purple-600">PREMIUM OPEN BAR</p>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Open Bar de Água, cerveja, refrigerante, suco, vodka</li>
-                    <li>Entrada exclusiva</li>
-                    <li>Acesso à frente do palco</li>
-                    <li>Banheiros exclusivos no setor</li>
-                    <li>Área de Convivência com 2.000m², exclusivo do Setor Premium</li>
-                    <li>Ambiente coberto e climatizado</li>
-                    <li>Lounge para descanso</li>
-                    <li>Transmissão Simultânea dos Shows em Telão de LED</li>
-                  </ul>
+                  <p className="font-bold text-purple-600">- PREMIUM OPEN BAR</p>
+                  <p><strong>•Open Bar de Água, cerveja, refrigerante, suco, vodka;</strong></p>
+                  <p>*Open bar da abertura dos portões até o término dos shows nacionais.</p>
+                  <p><strong>•Entrada exclusiva;</strong></p>
+                  <p><strong>•Acesso à frente do palco;</strong></p>
+                  <p><strong>•Banheiros exclusivos no setor;</strong></p>
+                  <p><strong>•Área de Convivência com 2.000m², exclusivo do Setor Premium, contendo:</strong></p>
+                  <p><strong>•Ambiente coberto e climatizado;</strong></p>
+                  <p><strong>•Lounge para descanso;</strong></p>
+                  <p><strong>•Transmissão Simultânea dos Shows em Telão de LED.</strong></p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-blue-600">ÁREA VIP</p>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Visão frontal do palco</li>
-                    <li>Acesso à passarela</li>
-                    <li>Área de convivência</li>
-                    <li>Banheiros exclusivos no setor</li>
-                  </ul>
+                  <p className="font-bold text-blue-600">- VIP</p>
+                  <p><strong>•Visão frontal do palco;</strong></p>
+                  <p><strong>•Acesso à passarela;</strong></p>
+                  <p><strong>•Área de convivência;</strong></p>
+                  <p><strong>•Banheiros exclusivos no setor;</strong></p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-green-600">ARENA</p>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Visão frontal do palco</li>
-                    <li>Área de convivência</li>
-                    <li>Setor com o menor custo</li>
-                    <li>Bares e banheiros no setor</li>
-                  </ul>
+                  <p className="font-bold text-green-600">PISTA</p>
+                  <p><strong>•Visão frontal do palco;</strong></p>
+                  <p><strong>•Área de convivência;</strong></p>
+                  <p><strong>•Setor com o menor custo;</strong></p>
+                  <p><strong>•Bares e banheiros no setor;</strong></p>
                 </div>
               </div>
             </div>
@@ -609,30 +587,30 @@ const Ingressos = () => {
             <Separator />
 
             <div>
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                INFORMAÇÕES IMPORTANTES
-              </h3>
-              <div className="space-y-3 text-gray-800 text-sm">
-                <p>• Este evento poderá ser gravado, filmado ou fotografado. Ao participar do evento o portador do ingresso concorda e autoriza a utilização gratuita de sua imagem por prazo indeterminado.</p>
-                <p>• É proibido a entrada no evento com copos, latas, cadeiras, bancos, objetos pontiagudos e/ou cortantes, guarda-chuvas, armas de fogo, cigarros eletrônicos, dispositivos explosivos, objetos de vidro e/ou metal, drones.</p>
-                <p>• Para sua segurança este evento conta com Guarda-volumes. Cuide dos seus pertences, não nos responsabilizamos por objetos perdidos durante o evento.</p>
-                <p>• A entrada de menores é proibida nas áreas de Open Bar.</p>
-                <p>• Não há circulação de público entre os setores, exceto equipe em trabalho.</p>
-                <p>• Chegue cedo, evite filas, e divirta-se.</p>
+              <p className="font-bold text-blue-600 underline mb-2">INFORMAÇÕES IMPORTANTES:</p>
+              <div className="space-y-3 text-gray-800">
+                <p><strong>Este evento poderá ser gravado, filmado ou fotografado.</strong> Ao participar do evento o portador do ingresso concorda e autoriza a utilização gratuita de sua imagem por prazo indeterminado.</p>
+                <p><strong>É proibido a entrada no evento com copos, latas, cadeiras, bancos, objetos pontiagudos e/ou cortantes, guarda-chuvas, armas de fogo, cigarros eletrônicos, dispositivos explosivos, objetos de vidro e/ou metal, drones,</strong> e itens que possam ser utilizados para marketing de emboscada.</p>
+                <p><strong>Para sua segurança este evento conta com Guarda-volumes,</strong> não hesite em utilizar para guardar seus pertences. Cuide dos seus pertences, não nos responsabilizamos por objetos perdidos durante o evento.</p>
+                <p><strong>Leia com atenção os termos de compra antes de realizar a compra.</strong></p>
+                <p><strong>A entrada de menores é proibida nas áreas de Open Bar,</strong> e a GDO Produções se reserva o direito de não reembolsar ingressos adquiridos para esses setores, considerando a prévia informação sobre a impossibilidade de acesso de menores, mesmo que acompanhados por seus responsáveis.</p>
+                <p><strong>Não há circulação de público entre os setores, exceto equipe em trabalho.</strong></p>
+                <p><strong>Chegue cedo, evite filas, e divirta-se.</strong></p>
               </div>
             </div>
 
             <Separator />
 
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <h3 className="text-lg font-bold mb-2 text-green-800">
-                🌱 ESTE SHOW VAI TER COPO ECOLÓGICO!
-              </h3>
-              <p className="text-sm text-green-700">
-                São copos 100% recicláveis, resistentes e duráveis. Você deverá adquirir para consumir bebidas no evento. 
-                Ao final do evento, a escolha é sua: ou devolve e é ressarcido ou leva para casa de recordação!
-              </p>
+            <div>
+              <p className="font-bold text-blue-600 underline mb-2">ESTE SHOW VAI TER COPO ECOLÓGICO!</p>
+              <p className="text-gray-800"><strong>São copos 100% recicláveis, resistentes e duráveis produzidos com matéria prima (PP)*</strong></p>
+              <p className="text-gray-800 mt-2"><strong>Você deverá adquirir para consumir bebidas no evento. Ao final do evento, a escolha é sua: ou devolve e é ressarcido ou leva para casa de recordação!?</strong></p>
+              <p className="text-gray-800 mt-2"><strong>Nosso objetivo é sempre reduzir o consumo de plásticos e lixo no evento, visando a importância da sustentabilidade.</strong></p>
+              <p className="text-gray-800 mt-2"><strong>Então se liga: NÃO TEREMOS COPOS DE PLÁSTICO DISPONÍVEIS EM NENHUM SETOR DO EVENTO</strong></p>
+              <p className="text-gray-600 mt-2 text-sm">*(PP) O polipropileno é um dos plásticos que não faz mal à saúde.</p>
             </div>
+
+            <Separator />
 
             <div className="text-center text-sm text-gray-600">
               <p className="font-medium">CONTATO ATENDIMENTO</p>
