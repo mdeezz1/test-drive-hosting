@@ -47,6 +47,7 @@ const MeusPedidos = () => {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [eventData, setEventData] = useState<EventData | undefined>(undefined);
+  const [resolvedEventData, setResolvedEventData] = useState<EventData | undefined>(undefined);
   const ticketRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Check if coming from payment success or with orders from search
@@ -78,6 +79,48 @@ const MeusPedidos = () => {
       setSearchDialogOpen(true);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    if (!eventData?.coverUrl) {
+      setResolvedEventData(eventData);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const convertCoverToDataUrl = async () => {
+      try {
+        const response = await fetch(eventData.coverUrl as string, { mode: "cors" });
+        if (!response.ok) {
+          setResolvedEventData(eventData);
+          return;
+        }
+
+        const blob = await response.blob();
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          if (!isCancelled) {
+            setResolvedEventData({
+              ...eventData,
+              coverUrl: typeof reader.result === "string" ? reader.result : eventData.coverUrl,
+            });
+          }
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Erro ao carregar imagem do evento:", error);
+        setResolvedEventData(eventData);
+      }
+    };
+
+    convertCoverToDataUrl();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [eventData]);
 
   const fetchOrderByTransaction = async (transactionId: string) => {
     setIsLoading(true);
@@ -136,10 +179,25 @@ const MeusPedidos = () => {
         format: 'a4',
       });
 
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const maxWidth = pageWidth - margin * 2;
+      const maxHeight = pageHeight - margin * 2;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      let imgWidth = maxWidth;
+      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (imgHeight > maxHeight) {
+        const scaleFactor = maxHeight / imgHeight;
+        imgWidth = imgWidth * scaleFactor;
+        imgHeight = imgHeight * scaleFactor;
+      }
+
+      const x = (pageWidth - imgWidth) / 2;
+      const y = margin;
+
+      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
       pdf.save(`ingresso-${order.transaction_id}-${ticketIndex + 1}.pdf`);
       
       toast.success("PDF gerado com sucesso!");
@@ -161,6 +219,12 @@ const MeusPedidos = () => {
         format: 'a4',
       });
 
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const maxWidth = pageWidth - margin * 2;
+      const maxHeight = pageHeight - margin * 2;
+
       const totalTickets = order.items.reduce((sum, item) => sum + item.quantity, 0);
       
       for (let i = 0; i < totalTickets; i++) {
@@ -175,13 +239,23 @@ const MeusPedidos = () => {
         });
 
         const imgData = canvas.toDataURL('image/png');
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        let imgWidth = maxWidth;
+        let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (imgHeight > maxHeight) {
+          const scaleFactor = maxHeight / imgHeight;
+          imgWidth = imgWidth * scaleFactor;
+          imgHeight = imgHeight * scaleFactor;
+        }
+
+        const x = (pageWidth - imgWidth) / 2;
+        const y = margin;
 
         if (i > 0) {
           pdf.addPage();
         }
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
       }
 
       pdf.save(`ingressos-${order.transaction_id}.pdf`);
@@ -327,7 +401,7 @@ const MeusPedidos = () => {
                             paidAt={order.updated_at}
                             ticketIndex={ticketIndex}
                             totalTickets={totalTickets}
-                            eventData={eventData}
+                            eventData={resolvedEventData ?? eventData}
                           />
                         </div>
                       </div>
