@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/RichTextEditor";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -424,8 +425,12 @@ const EventManager = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-slate-300">Descrição</Label>
-                    <Textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} placeholder="Descrição do evento..." className="bg-slate-700 border-slate-600 text-white" rows={3} />
+                    <Label className="text-slate-300">Descrição / Informações</Label>
+                    <p className="text-xs text-slate-500 mb-2">Use o editor abaixo para formatar o texto com negrito, cores, listas etc.</p>
+                    <RichTextEditor 
+                      content={eventForm.description} 
+                      onChange={(content) => setEventForm({ ...eventForm, description: content })} 
+                    />
                   </div>
                   <div>
                     <Label className="text-slate-300">Local *</Label>

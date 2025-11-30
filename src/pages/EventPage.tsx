@@ -476,8 +476,8 @@ const EventPage = () => {
             </h2>
             <div className="bg-gray-50 rounded-lg p-6">
               <div 
-                className="prose prose-gray max-w-none"
-                dangerouslySetInnerHTML={{ __html: event.description.replace(/\n/g, '<br/>') }}
+                className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
+                dangerouslySetInnerHTML={{ __html: event.description }}
               />
             </div>
           </div>
