@@ -72,13 +72,13 @@ const Index = () => {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 bg-black">
-          <div className="flex items-center justify-between gap-4">
+          <div className="items-center justify-between flex flex-row gap-[16px] mx-[25px] px-[25px]">
             {/* Logo */}
             <img alt="Guichê Web Logo" className="h-8 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
             {/* Search Bar */}
             <div className="flex-1 max-w-xl hidden md:block">
-              <div className="relative bg-black">
+              <div className="relative bg-black px-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
                 <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
