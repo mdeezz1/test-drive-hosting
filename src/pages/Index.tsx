@@ -73,7 +73,7 @@ const Index = () => {
       {/* Header */}
       <header className="shadow-sm sticky top-0 z-50 bg-black overflow-x-hidden">
         <div className="w-full py-3 bg-black px-0 mx-0">
-          <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-3 max-w-full px-[18px]">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-3 max-w-full px-[15px]">
             {/* Logo */}
             <img alt="Guichê Web Logo" className="h-6 md:h-8 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
