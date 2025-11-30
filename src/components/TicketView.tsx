@@ -4,12 +4,20 @@ import { ptBR } from "date-fns/locale";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
 import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
-import eventCover from "@/assets/event-cover.jpg";
 
 interface TicketItem {
   name: string;
   quantity: number;
   price: number;
+}
+
+interface EventData {
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  openingTime?: string;
+  coverUrl?: string;
 }
 
 interface TicketViewProps {
@@ -23,6 +31,7 @@ interface TicketViewProps {
   paidAt: string;
   ticketIndex: number;
   totalTickets: number;
+  eventData?: EventData;
 }
 
 const TicketView = ({
@@ -36,6 +45,7 @@ const TicketView = ({
   paidAt,
   ticketIndex,
   totalTickets,
+  eventData,
 }: TicketViewProps) => {
   const qrRef = useRef<HTMLCanvasElement>(null);
   const barcodeRef = useRef<SVGSVGElement>(null);
@@ -90,11 +100,21 @@ const TicketView = ({
 
   const paidDate = new Date(paidAt);
 
-  // Event info
-  const eventName = "Ahh Verão - Henrique e Juliano + Nattan";
-  const eventLocation = "Arena Open, Camboriú - SC";
-  const eventDate = "02/01/2025";
-  const eventTime = "16:00";
+  // Use dynamic event data or fallback to defaults
+  const eventName = eventData?.name || "Evento";
+  const eventLocation = eventData?.location || "Local do Evento";
+  
+  // Format event date from database format (YYYY-MM-DD) to display format
+  const formatEventDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr + "T00:00:00");
+    return format(date, "dd/MM/yyyy", { locale: ptBR });
+  };
+  
+  const eventDate = eventData?.date ? formatEventDate(eventData.date) : "";
+  const eventTime = eventData?.time?.slice(0, 5) || "";
+  const openingTime = eventData?.openingTime?.slice(0, 5) || eventTime;
+  const coverUrl = eventData?.coverUrl;
 
   // Get ticket name from items
   const ticketName = items[0]?.name || "Ingresso";
@@ -123,11 +143,17 @@ const TicketView = ({
       <div className="flex gap-4 mb-6">
         {/* Event Banner */}
         <div className="w-48 h-32 overflow-hidden rounded flex-shrink-0">
-          <img 
-            src={eventCover} 
-            alt={eventName}
-            className="w-full h-full object-cover"
-          />
+          {coverUrl ? (
+            <img 
+              src={coverUrl} 
+              alt={eventName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-4xl">🎟️</span>
+            </div>
+          )}
         </div>
 
         {/* Ticket Info */}
@@ -140,7 +166,7 @@ const TicketView = ({
             📅 {eventDate}
           </p>
           <p className="text-sm text-gray-600 mb-1">
-            <strong>Abertura:</strong> {eventTime} <strong>Início:</strong> {eventTime}
+            <strong>Abertura:</strong> {openingTime} <strong>Início:</strong> {eventTime}
           </p>
           <p className="text-sm text-gray-600 mb-2">
             Valor: R$ {ticketPrice.toFixed(2).replace('.', ',')}

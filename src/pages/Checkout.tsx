@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Check, ArrowRight, QrCode, Copy, Clock } from "lucide-react";
-import eventCover from "@/assets/event-cover.jpg";
+import { Check, ArrowRight, QrCode, Copy, Clock, Ticket } from "lucide-react";
 import guichewebLogo from "@/assets/guicheweb-logo.png";
 import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
 import pixPhoneIllustration from "@/assets/pix-phone-illustration.png";
@@ -22,10 +21,21 @@ interface CartItem {
   quantity: number;
 }
 
+interface EventData {
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  openingTime?: string;
+  coverUrl?: string;
+}
+
 interface CheckoutState {
   items: CartItem[];
   total: number;
   totalWithFees: number;
+  eventSlug?: string;
+  eventData?: EventData;
 }
 
 const Checkout = () => {
@@ -59,7 +69,8 @@ const Checkout = () => {
   useEffect(() => {
     if (!checkoutState || !checkoutState.items || checkoutState.items.length === 0) {
       toast.error("Carrinho vazio");
-      navigate('/ahh-verao-henrique-e-juliano-nattan');
+      const redirectPath = checkoutState?.eventSlug ? `/e/${checkoutState.eventSlug}` : '/';
+      navigate(redirectPath);
     }
   }, [checkoutState, navigate]);
 
@@ -67,7 +78,7 @@ const Checkout = () => {
     return null;
   }
 
-  const { items, total, totalWithFees } = checkoutState;
+  const { items, total, totalWithFees, eventSlug, eventData } = checkoutState;
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', {
@@ -223,7 +234,7 @@ const Checkout = () => {
 
           if (!error && data?.status === 'paid') {
             toast.success("Pagamento confirmado!");
-            navigate('/pagamento-aprovado', { state: { transactionId: currentTransactionId } });
+            navigate('/pagamento-aprovado', { state: { transactionId: currentTransactionId, eventData } });
           }
         } catch (err) {
           console.error('Error checking payment status:', err);
@@ -373,11 +384,17 @@ const Checkout = () => {
                     <div className="space-y-4">
                       {items.map((item, index) => (
                         <div key={index} className="flex gap-3">
-                          <img 
-                            src={eventCover} 
-                            alt={item.name}
-                            className="w-16 h-16 rounded object-cover"
-                          />
+                          {eventData?.coverUrl ? (
+                            <img 
+                              src={eventData.coverUrl} 
+                              alt={item.name}
+                              className="w-16 h-16 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded bg-gray-200 flex items-center justify-center">
+                              <Ticket className="h-6 w-6 text-gray-400" />
+                            </div>
+                          )}
                           <div className="flex-1">
                             <h4 className="font-semibold text-sm text-gray-800">
                               {item.section} - {item.variant}

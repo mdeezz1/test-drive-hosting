@@ -16,6 +16,15 @@ interface OrderItem {
   price: number;
 }
 
+interface EventData {
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  openingTime?: string;
+  coverUrl?: string;
+}
+
 interface Order {
   id: string;
   transaction_id: string;
@@ -37,6 +46,7 @@ const MeusPedidos = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [eventData, setEventData] = useState<EventData | undefined>(undefined);
   const ticketRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Check if coming from payment success or with orders from search
@@ -46,7 +56,12 @@ const MeusPedidos = () => {
       fromPayment?: boolean; 
       transactionId?: string;
       searchQuery?: string;
+      eventData?: EventData;
     } | null;
+
+    if (state?.eventData) {
+      setEventData(state.eventData);
+    }
 
     if (state?.orders) {
       // Parse items if they're strings
@@ -309,6 +324,7 @@ const MeusPedidos = () => {
                             paidAt={order.updated_at}
                             ticketIndex={ticketIndex}
                             totalTickets={totalTickets}
+                            eventData={eventData}
                           />
                         </div>
 

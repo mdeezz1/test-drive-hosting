@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MapPin, Ticket, Instagram, Plus, Minus, Loader2, Youtube, Map, Info, AlertTriangle } from "lucide-react";
 import { FaWhatsapp, FaFacebookF, FaFacebookMessenger, FaXTwitter } from "react-icons/fa6";
 import { toast } from "sonner";
@@ -64,7 +66,6 @@ const EventPage = () => {
   const fetchEvent = async () => {
     setLoading(true);
     try {
-      // Fetch event by slug
       const { data: eventData, error: eventError } = await supabase
         .from("events")
         .select("*")
@@ -82,7 +83,6 @@ const EventPage = () => {
 
       setEvent(eventData);
 
-      // Fetch ticket types for this event
       const { data: ticketsData, error: ticketsError } = await supabase
         .from("ticket_types")
         .select("*")
@@ -100,7 +100,6 @@ const EventPage = () => {
     }
   };
 
-  // Calculate totals when cart changes
   useEffect(() => {
     let total = 0;
     let totalWithFees = 0;
@@ -115,7 +114,6 @@ const EventPage = () => {
     setCartTotalWithFees(totalWithFees);
   }, [cart, ticketTypes]);
 
-  // Group tickets by sector
   const ticketsBySector = ticketTypes.reduce((acc, ticket) => {
     if (!acc[ticket.sector]) {
       acc[ticket.sector] = {
@@ -191,7 +189,6 @@ const EventPage = () => {
       return;
     }
 
-    // Check if total exceeds R$1000
     if (cartTotalWithFees > 1000) {
       toast.error("Compras acima de R$ 1.000,00 estão temporariamente indisponíveis", {
         description: "Para evitar golpes de reembolso (MED), compras acima desse valor precisam ser feitas em mais de uma transação.",
@@ -201,7 +198,6 @@ const EventPage = () => {
       return;
     }
 
-    // Build cart items for checkout
     const cartItems = Object.entries(cart)
       .filter(([_, qty]) => qty > 0)
       .map(([ticketId, quantity]) => {
@@ -217,12 +213,21 @@ const EventPage = () => {
         };
       });
 
+    // Pass event data to checkout for ticket generation
     navigate("/checkout", {
       state: {
         items: cartItems,
         total: cartTotal,
         totalWithFees: cartTotalWithFees,
-        eventSlug: slug
+        eventSlug: slug,
+        eventData: event ? {
+          name: event.name,
+          location: event.location,
+          date: event.event_date,
+          time: event.event_time,
+          openingTime: event.opening_time,
+          coverUrl: event.cover_url
+        } : null
       }
     });
   };
@@ -243,12 +248,9 @@ const EventPage = () => {
     return timeStr?.slice(0, 5) || "";
   };
 
-  // Extract Google Maps URL from iframe embed code or use directly
   const getGoogleMapsUrl = (embed: string) => {
     if (!embed) return "";
-    // If it's already just a URL
     if (embed.startsWith("http")) return embed;
-    // Extract src from iframe code
     const srcMatch = embed.match(/src=["']([^"']+)["']/);
     return srcMatch ? srcMatch[1] : embed;
   };
@@ -362,11 +364,14 @@ const EventPage = () => {
                   <Info className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
                 </button>
 
-                {event.youtube_url && (
-                  <button onClick={() => window.open(event.youtube_url, "_blank")} className="flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all" title="Youtube">
-                    <Youtube className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
-                  </button>
-                )}
+                <button 
+                  onClick={() => event.youtube_url ? window.open(event.youtube_url, "_blank") : null} 
+                  className={`flex items-center justify-center p-4 lg:p-5 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all ${!event.youtube_url ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                  title="Youtube"
+                  disabled={!event.youtube_url}
+                >
+                  <Youtube className="h-8 w-8 lg:h-10 lg:w-10 text-gray-700" />
+                </button>
               </div>
             </div>
           </div>
@@ -463,17 +468,51 @@ const EventPage = () => {
           )}
         </div>
 
+        {/* Info Section */}
+        {event.description && (
+          <div id="info" className="max-w-5xl mx-auto mb-8">
+            <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
+              INFORMAÇÕES
+            </h2>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <div 
+                className="prose prose-gray max-w-none"
+                dangerouslySetInnerHTML={{ __html: event.description.replace(/\n/g, '<br/>') }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Rules Accordion */}
+        <div className="max-w-5xl mx-auto mb-8">
+          <Accordion type="single" collapsible className="bg-white rounded-lg shadow-md">
+            <AccordionItem value="item-1" className="border-none">
+              <AccordionTrigger className="px-6 py-4 text-xl font-semibold hover:no-underline">
+                Regras para venda on-line
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 space-y-3 text-sm text-gray-600">
+                <p>1. Todas as disposições aplicáveis às vendas de ingressos pela plataforma da Guichê Web se encontram previstas nos Termos de Uso.</p>
+                <p>2. A Guichê Web é uma plataforma intermediária especializada na venda de ingressos online e não organiza os eventos comercializados.</p>
+                <p>3. Para acessar o evento é obrigatória a apresentação do ingresso impresso e assinado ou em formato digital através do App (Guichê Web), juntamente com documento de identificação oficial com foto.</p>
+                <p>4. O não comparecimento ao evento invalidará o ingresso e não permitirá reembolso.</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        <Separator className="my-8 max-w-5xl mx-auto" />
+
         {/* Location Section */}
         <div id="localizacao" className="max-w-5xl mx-auto mb-8">
           <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
             LOCALIZAÇÃO
           </h2>
-          <div className="rounded-lg overflow-hidden shadow-md">
+          <Separator className="mb-6" />
+          <div className="aspect-video rounded-lg overflow-hidden shadow-md">
             {event.google_maps_embed ? (
               <iframe
                 src={getGoogleMapsUrl(event.google_maps_embed)}
-                width="100%"
-                height="450"
+                className="w-full h-full"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
@@ -490,34 +529,62 @@ const EventPage = () => {
           <p className="text-center text-gray-600 mt-4">{event.location}</p>
         </div>
 
-        {/* Info Section */}
-        {event.description && (
-          <div id="info" className="max-w-5xl mx-auto mb-8">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
-              INFORMAÇÕES
-            </h2>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="prose prose-gray max-w-none">
-                {event.description.split("\n").map((paragraph, index) => (
-                  <p key={index} className="text-gray-700 mb-2">{paragraph}</p>
-                ))}
-              </div>
+        {/* Footer */}
+        <footer className="max-w-5xl mx-auto bg-black text-white py-8 rounded-lg">
+          <div className="text-center space-y-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer" className="inline-block">
+                <div className="bg-white text-black px-6 py-3 rounded-lg flex items-center gap-3 hover:bg-gray-100 transition-colors">
+                  <div className="text-left">
+                    <div className="text-xs">Disponível na</div>
+                    <div className="text-lg font-semibold">App Store</div>
+                  </div>
+                </div>
+              </a>
+
+              <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="inline-block">
+                <div className="bg-white text-black px-6 py-3 rounded-lg flex items-center gap-3 hover:bg-gray-100 transition-colors">
+                  <div className="text-left">
+                    <div className="text-xs">Disponível no</div>
+                    <div className="text-lg font-semibold">Google Play</div>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <div className="space-y-2 text-sm text-gray-300 px-4">
+              <p>Guichê Web Comercialização de Ingressos Ltda - CNPJ - 18.797.249/0001-35</p>
+              <p>Todos os preços e condições comerciais estão sujeitos a alteração comercial sem aviso prévio.</p>
+              <p>©Todos os direitos reservados.</p>
             </div>
           </div>
-        )}
+        </footer>
       </div>
 
-      {/* Fixed Cart Bar */}
+      {/* Fixed Cart Bar - Green Style */}
       {getTotalItems() > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-50">
-          <div className="container mx-auto max-w-5xl flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{getTotalItems()} ingresso(s)</p>
-              <p className="text-xl font-bold text-gray-900">{formatCurrency(cartTotalWithFees)}</p>
+        <div className="fixed bottom-0 left-0 right-0 shadow-2xl z-50" style={{ backgroundColor: 'rgba(29, 115, 28, 0.95)' }}>
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between max-w-5xl mx-auto">
+              <div className="flex-1">
+                <p className="font-bold text-white text-sm mb-1">
+                  {getTotalItems()} {getTotalItems() === 1 ? 'ITEM' : 'ITENS'} NO CARRINHO
+                </p>
+                <p className="text-2xl font-bold text-white mb-1">
+                  {formatCurrency(cartTotalWithFees)}
+                </p>
+                <p className="text-sm text-white">
+                  (Ingressos: {formatCurrency(cartTotal)} + Taxas: {formatCurrency(cartTotalWithFees - cartTotal)})
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <p className="text-sm text-white">Tudo pronto?</p>
+                <Button size="lg" className="bg-white hover:bg-gray-100 text-gray-900 font-semibold" onClick={handleCheckout}>
+                  CONTINUAR
+                  <span className="ml-2">›</span>
+                </Button>
+              </div>
             </div>
-            <Button onClick={handleCheckout} className="bg-emerald-600 hover:bg-emerald-700 text-white px-8">
-              Continuar
-            </Button>
           </div>
         </div>
       )}
