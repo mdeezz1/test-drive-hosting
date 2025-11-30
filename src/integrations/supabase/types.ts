@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          banner_url: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string
+          id: string
+          is_active: boolean
+          location: string
+          map_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time: string
+          id?: string
+          is_active?: boolean
+          location: string
+          map_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          map_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string
@@ -55,6 +103,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ticket_types: {
+        Row: {
+          available: number
+          color: string | null
+          created_at: string
+          event_id: string
+          fee: number
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          sector: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          available?: number
+          color?: string | null
+          created_at?: string
+          event_id: string
+          fee?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          sector: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          available?: number
+          color?: string | null
+          created_at?: string
+          event_id?: string
+          fee?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          sector?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

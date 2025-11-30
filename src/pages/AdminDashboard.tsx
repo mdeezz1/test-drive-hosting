@@ -18,12 +18,20 @@ import {
   DollarSign,
   Ticket,
   Users,
-  TrendingUp
+  TrendingUp,
+  CalendarDays
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import guichewebLogo from "@/assets/guicheweb-logo.png";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import EventManager from "@/components/admin/EventManager";
+
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
 
 interface Order {
   id: string;
@@ -31,7 +39,7 @@ interface Order {
   customer_email: string;
   customer_cpf: string;
   customer_phone: string;
-  items: { name: string; quantity: number; price: number }[];
+  items: OrderItem[];
   total_amount: number;
   status: string;
   transaction_id: string;
@@ -65,7 +73,7 @@ const AdminDashboard = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      setOrders((data || []) as unknown as Order[]);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast({
@@ -155,6 +163,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="checkin" className="data-[state=active]:bg-emerald-600">
               <QrCode className="h-4 w-4 mr-2" />
               Check-in
+            </TabsTrigger>
+            <TabsTrigger value="events" className="data-[state=active]:bg-emerald-600">
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Eventos
             </TabsTrigger>
             <TabsTrigger value="reports" className="data-[state=active]:bg-emerald-600">
               <FileText className="h-4 w-4 mr-2" />
@@ -333,6 +345,11 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Events Tab */}
+          <TabsContent value="events">
+            <EventManager />
           </TabsContent>
 
           {/* Reports Tab */}
