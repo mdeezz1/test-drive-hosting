@@ -74,9 +74,9 @@ const Index = () => {
       {/* Header */}
       <header className="shadow-sm sticky top-0 z-50 bg-black overflow-x-hidden">
         <div className="w-full px-4 py-3 bg-black">
-          <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-[16px] max-w-full">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 md:gap-3 max-w-full">
             {/* Logo */}
-            <img alt="Guichê Web Logo" className="h-7 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
+            <img alt="Guichê Web Logo" className="h-6 md:h-8 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
             {/* Search Bar - Desktop */}
             <div className="flex-1 max-w-xl hidden md:block min-w-0">
@@ -92,16 +92,16 @@ const Index = () => {
               {/* Mobile Search Icon */}
               <button 
                 onClick={() => setMobileSearchOpen(!mobileSearchOpen)} 
-                className="md:hidden p-2 text-white hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
+                className="md:hidden p-1.5 text-white hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4" />
               </button>
               
-              <Button variant="outline" onClick={() => navigate("/meus-pedidos")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-2 md:px-4 whitespace-nowrap flex-shrink-0">
-                <Ticket className="h-4 w-4 mr-1 md:mr-2" />
+              <Button variant="outline" onClick={() => navigate("/meus-pedidos")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-[10px] md:text-xs px-1.5 md:px-3 py-1 md:py-2 whitespace-nowrap flex-shrink-0 h-auto">
+                <Ticket className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 MEUS INGRESSOS
               </Button>
-              <img src="/brazil-flag.png" alt="Brasil" className="h-5 md:h-6 w-auto flex-shrink-0" />
+              <img src="/brazil-flag.png" alt="Brasil" className="h-4 md:h-5 w-auto flex-shrink-0" />
             </div>
           </div>
 
