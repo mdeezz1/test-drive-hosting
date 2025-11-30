@@ -68,15 +68,17 @@ const Index = () => {
     }
   };
   const filteredEvents = events.filter(event => event.name.toLowerCase().includes(searchTerm.toLowerCase()) || event.location.toLowerCase().includes(searchTerm.toLowerCase()));
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
   return <div className="min-h-screen bg-[#F5F0E8]">
       {/* Header */}
       <header className="shadow-sm sticky top-0 z-50 bg-black">
         <div className="container mx-auto px-4 py-3 bg-black">
-          <div className="items-center justify-between flex flex-row gap-[16px] mx-0 px-0">
+          <div className="items-center justify-between flex flex-row gap-4 md:gap-[16px]">
             {/* Logo */}
-            <img alt="Guichê Web Logo" className="h-8 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
+            <img alt="Guichê Web Logo" className="h-7 md:h-10 cursor-pointer" onClick={() => navigate("/")} src="https://s3.guicheweb.com.br/nova_marca/logogw.png" />
 
-            {/* Search Bar */}
+            {/* Search Bar - Desktop */}
             <div className="flex-1 max-w-xl hidden md:block">
               <div className="relative bg-black px-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -85,23 +87,40 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Login Button and Flag */}
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black">
+            {/* Mobile Search Icon + Login Button + Flag */}
+            <div className="flex items-center gap-3 md:gap-2">
+              {/* Mobile Search Icon */}
+              <button 
+                onClick={() => setMobileSearchOpen(!mobileSearchOpen)} 
+                className="md:hidden p-2 text-white hover:bg-gray-800 rounded-full transition-colors"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              
+              <Button variant="outline" onClick={() => navigate("/gw-admin-2025")} className="border-gray-300 text-primary-foreground border-2 rounded bg-black text-xs md:text-sm px-3 md:px-4">
                 ENTRAR
               </Button>
-              <img src="/brazil-flag.png" alt="Brasil" className="h-6 w-auto" />
+              <img src="/brazil-flag.png" alt="Brasil" className="h-5 md:h-6 w-auto" />
             </div>
           </div>
 
-          {/* Mobile Search */}
-          <div className="mt-3 md:hidden">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input type="text" placeholder="Faça sua pesquisa..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" />
-              <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          {/* Mobile Search Expanded */}
+          {mobileSearchOpen && (
+            <div className="mt-3 md:hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input 
+                  type="text" 
+                  placeholder="Faça sua pesquisa..." 
+                  value={searchTerm} 
+                  onChange={e => setSearchTerm(e.target.value)} 
+                  className="pl-10 pr-10 bg-gray-50 border-gray-200 rounded-full" 
+                  autoFocus
+                />
+                <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </header>
 
