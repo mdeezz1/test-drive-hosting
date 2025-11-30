@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { Check, ArrowRight, QrCode, Copy, Clock } from "lucide-react";
 import eventCover from "@/assets/event-cover.jpg";
 import guichewebLogo from "@/assets/guicheweb-logo.png";
+import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
+import pixPhoneIllustration from "@/assets/pix-phone-illustration.png";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CartItem {
   id: string;
@@ -137,19 +140,45 @@ const Checkout = () => {
   const handleGeneratePix = async () => {
     setIsLoading(true);
     
-    // Simulate PIX generation (will be replaced with FreePay API)
-    setTimeout(() => {
-      const mockPixCode = `00020126580014br.gov.bcb.pix0136${Date.now()}520400005303986540${totalWithFees.toFixed(2)}5802BR5925GUICHEWEB INGRESSOS6009SAO PAULO62140510${Date.now()}6304`;
-      
-      setPixData({
-        qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(mockPixCode),
-        copiaCola: mockPixCode,
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
+    try {
+      const { data, error } = await supabase.functions.invoke('create-pix-payment', {
+        body: {
+          amount: totalWithFees,
+          customerName: formData.nome,
+          customerEmail: formData.email,
+          customerCpf: formData.cpf.replace(/\D/g, ''),
+          customerPhone: formData.celular.replace(/\D/g, ''),
+          items: items.map(item => ({
+            name: `${item.section} - ${item.variant}`,
+            quantity: item.quantity,
+            price: item.price + item.fee
+          }))
+        }
       });
-      
-      setStep('pix');
+
+      if (error) {
+        console.error('Error creating PIX:', error);
+        toast.error("Erro ao gerar PIX. Tente novamente.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.qrCode && data?.copiaCola) {
+        setPixData({
+          qrCode: data.qrCode,
+          copiaCola: data.copiaCola,
+          expiresAt: new Date(Date.now() + 30 * 60 * 1000)
+        });
+        setStep('pix');
+      } else {
+        toast.error("Erro ao gerar PIX. Resposta inválida.");
+      }
+    } catch (err) {
+      console.error('Error generating PIX:', err);
+      toast.error("Erro ao gerar PIX. Tente novamente.");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const copyPixCode = () => {
@@ -205,11 +234,11 @@ const Checkout = () => {
             
             {/* Phone illustration */}
             <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="w-20 h-28 bg-gradient-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center">
-                  <div className="text-green-500 text-3xl">📱</div>
-                </div>
-              </div>
+              <img 
+                src={pixPhoneIllustration} 
+                alt="Pague com PIX" 
+                className="w-48 h-48 object-contain"
+              />
             </div>
             
             <p className="text-gray-600 mb-4">Aponte a câmera do seu celular</p>
@@ -498,8 +527,8 @@ const Checkout = () => {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6 mt-8">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <div className="flex items-center justify-center mb-1">
-            <img src={guichewebLogo} alt="Guichê Web" className="h-6" />
+          <div className="flex items-center justify-center mb-2">
+            <img src={guichewebLogoFull} alt="Guichê Web" className="h-8" />
           </div>
           <p>Todos os direitos reservados</p>
           <p className="mt-1">Ambiente seguro para pagamento</p>
