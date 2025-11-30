@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, Home, HelpCircle, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -46,13 +47,13 @@ const Navbar = () => {
 
               <div className="py-4">
                 <nav className="flex flex-col gap-1">
-                  <a
-                    href="/ahh-verao-henrique-e-juliano-nattan"
+                  <Link
+                    to="/"
                     className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors"
                   >
                     <Home className="h-5 w-5" />
                     <span className="text-base">Home</span>
-                  </a>
+                  </Link>
                   <button
                     onClick={() => setSearchOrdersOpen(true)}
                     className="flex items-center gap-3 px-6 py-4 hover:bg-gray-900 transition-colors text-left w-full"
