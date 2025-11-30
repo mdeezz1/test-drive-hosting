@@ -282,27 +282,13 @@ const MeusPedidos = () => {
               return (
                 <div key={order.id} className="mb-8">
                   {/* Order Header */}
-                  <div className="bg-white rounded-t-lg shadow-sm border border-b-0 p-4 flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                      <h2 className="font-bold text-lg text-gray-800">
-                        Pedido #{order.transaction_id}
-                      </h2>
-                      <p className="text-sm text-gray-600">
-                        {totalTickets} ingresso{totalTickets > 1 ? 's' : ''} • Total: R$ {order.total_amount.toFixed(2).replace('.', ',')}
-                      </p>
-                    </div>
-                    <Button
-                      onClick={() => generateAllPDFs(order)}
-                      disabled={isGeneratingPdf}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      {isGeneratingPdf ? (
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-5 w-5 mr-2" />
-                      )}
-                      Baixar Todos os Ingressos
-                    </Button>
+                  <div className="bg-white rounded-t-lg shadow-sm border border-b-0 p-4">
+                    <h2 className="font-bold text-lg text-gray-800">
+                      Pedido #{order.transaction_id}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {totalTickets} ingresso{totalTickets > 1 ? 's' : ''} • Total: R$ {order.total_amount.toFixed(2).replace('.', ',')}
+                    </p>
                   </div>
 
                   {/* Tickets */}

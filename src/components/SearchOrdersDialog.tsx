@@ -41,10 +41,14 @@ const SearchOrdersDialog = ({ open, onOpenChange }: SearchOrdersDialogProps) => 
   };
 
   const handleInputChange = (value: string) => {
-    // Check if it's an email or CPF
-    if (value.includes('@') || value.includes('.com')) {
+    // Check if it contains any letter (email) or just numbers (CPF)
+    const hasLetter = /[a-zA-Z]/.test(value);
+    
+    if (hasLetter || value.includes('@')) {
+      // It's an email - allow free text input
       setSearchValue(value);
     } else {
+      // It's a CPF - format as numbers only
       const numbers = value.replace(/\D/g, '');
       if (numbers.length <= 11) {
         setSearchValue(formatCPF(numbers));
