@@ -169,6 +169,7 @@ const Checkout = () => {
           copiaCola: data.copiaCola,
           expiresAt: new Date(Date.now() + 30 * 60 * 1000)
         });
+        setCurrentTransactionId(data.transactionId);
         setStep('pix');
       } else {
         toast.error("Erro ao gerar PIX. Resposta inválida.");
@@ -194,6 +195,9 @@ const Checkout = () => {
     return items.reduce((sum, item) => sum + (item.fee * item.quantity), 0);
   };
 
+  // Transaction ID for tracking
+  const [currentTransactionId, setCurrentTransactionId] = useState<string | null>(null);
+
   // Countdown timer for PIX
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
 
@@ -205,6 +209,32 @@ const Checkout = () => {
       return () => clearInterval(timer);
     }
   }, [step, timeLeft]);
+
+  // Poll for payment status
+  useEffect(() => {
+    if (step === 'pix' && currentTransactionId) {
+      const checkPaymentStatus = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('orders')
+            .select('status')
+            .eq('transaction_id', currentTransactionId)
+            .maybeSingle();
+
+          if (!error && data?.status === 'paid') {
+            toast.success("Pagamento confirmado!");
+            navigate('/pagamento-aprovado', { state: { transactionId: currentTransactionId } });
+          }
+        } catch (err) {
+          console.error('Error checking payment status:', err);
+        }
+      };
+
+      // Check every 5 seconds
+      const pollInterval = setInterval(checkPaymentStatus, 5000);
+      return () => clearInterval(pollInterval);
+    }
+  }, [step, currentTransactionId, navigate]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

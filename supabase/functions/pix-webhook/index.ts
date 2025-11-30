@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -108,6 +109,19 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase credentials');
+      return new Response(
+        JSON.stringify({ error: 'Missing database credentials' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const payload = await req.json();
     
     console.log('Received FreePay webhook:', JSON.stringify(payload));
@@ -126,9 +140,50 @@ serve(async (req) => {
     if (status === 'PAID' || status === 'paid' || status === 'approved') {
       console.log('Payment confirmed! Transaction:', transactionId);
       
+      // Update order status to paid in database
+      const { data: orderData, error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'paid',
+          updated_at: new Date().toISOString()
+        })
+        .eq('transaction_id', transactionId)
+        .select()
+        .maybeSingle();
+
+      if (updateError) {
+        console.error('Error updating order status:', updateError);
+      } else if (orderData) {
+        console.log('Order status updated to paid:', orderData.id);
+      } else {
+        console.log('Order not found for transaction:', transactionId);
+      }
+      
       // Amount comes in reais from webhook, convert to cents
       const amountInCents = typeof amount === 'number' ? Math.round(amount * 100) : amount;
       
+      // Parse items from metadata if available
+      let products = [{
+        id: 'ticket',
+        name: 'Ingresso Ahh Verão',
+        quantity: 1,
+        priceInCents: amountInCents
+      }];
+
+      if (metadata.items) {
+        try {
+          const parsedItems = typeof metadata.items === 'string' ? JSON.parse(metadata.items) : metadata.items;
+          products = parsedItems.map((item: any, index: number) => ({
+            id: `ticket_${index}`,
+            name: item.name,
+            quantity: item.quantity,
+            priceInCents: Math.round(item.price * 100)
+          }));
+        } catch (e) {
+          console.log('Could not parse items from metadata');
+        }
+      }
+
       // Send paid notification to Utmify
       const utmifyResult = await sendToUtmify({
         orderId: transactionId,
@@ -142,12 +197,7 @@ serve(async (req) => {
           phone: customer.phone || customer.Phone || metadata.customerPhone || '',
           document: customer.document?.number || customer.Document?.Number || metadata.customerCpf || ''
         },
-        products: metadata.products || [{
-          id: 'ticket',
-          name: 'Ingresso Ahh Verão',
-          quantity: 1,
-          priceInCents: amountInCents
-        }],
+        products,
         totalPriceInCents: amountInCents,
         gatewayFeeInCents: Math.round(amountInCents * 0.0299) // ~3% fee estimate
       });
@@ -159,7 +209,8 @@ serve(async (req) => {
           received: true, 
           status: 'paid',
           transactionId,
-          utmifyNotified: utmifyResult.success
+          utmifyNotified: utmifyResult.success,
+          orderUpdated: !updateError
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -168,6 +219,19 @@ serve(async (req) => {
     // Handle refunded status
     if (status === 'REFUNDED' || status === 'refunded') {
       console.log('Payment refunded! Transaction:', transactionId);
+      
+      // Update order status to refunded in database
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'refunded',
+          updated_at: new Date().toISOString()
+        })
+        .eq('transaction_id', transactionId);
+
+      if (updateError) {
+        console.error('Error updating order status:', updateError);
+      }
       
       const amountInCents = typeof amount === 'number' ? Math.round(amount * 100) : amount;
 

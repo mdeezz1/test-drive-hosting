@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -123,6 +124,8 @@ serve(async (req) => {
   try {
     const publicKey = Deno.env.get('FREEPAY_PUBLIC_KEY');
     const secretKey = Deno.env.get('FREEPAY_SECRET_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!publicKey || !secretKey) {
       console.error('Missing FreePay API credentials');
@@ -131,6 +134,16 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase credentials');
+      return new Response(
+        JSON.stringify({ error: 'Missing database credentials' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { amount, customerName, customerEmail, customerCpf, customerPhone, items }: PaymentRequest = await req.json();
 
@@ -167,10 +180,16 @@ serve(async (req) => {
       metadata: {
         provider_name: 'GuicheWeb',
         source: 'guicheweb',
-        event: 'ahh-verao'
+        event: 'ahh-verao',
+        internal_transaction_id: transactionId,
+        customerName,
+        customerEmail,
+        customerCpf: customerCpf.replace(/\D/g, ''),
+        customerPhone: customerPhone.replace(/\D/g, ''),
+        items: JSON.stringify(items)
       },
       amount: Math.round(amount * 100), // Convert to cents
-      postback_url: 'https://urktmzyjqcsuiyizumom.supabase.co/functions/v1/pix-webhook',
+      postback_url: `${supabaseUrl}/functions/v1/pix-webhook`,
       ip: '127.0.0.1',
       installments: 1,
       pix: {
@@ -229,8 +248,29 @@ serve(async (req) => {
       );
     }
 
-    // Generate QR code URL from the PIX code (we'll use a QR code API)
+    // Generate QR code URL from the PIX code
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(copiaCola)}`;
+
+    // Save order to database with pending status
+    const { error: insertError } = await supabase
+      .from('orders')
+      .insert({
+        transaction_id: freePayData.data?.id || transactionId,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_cpf: customerCpf.replace(/\D/g, ''),
+        customer_phone: customerPhone.replace(/\D/g, ''),
+        items: items,
+        total_amount: amount,
+        status: 'pending'
+      });
+
+    if (insertError) {
+      console.error('Error saving order to database:', insertError);
+      // Continue anyway - payment was created successfully
+    } else {
+      console.log('Order saved to database with pending status');
+    }
 
     // Send waiting_payment notification to Utmify
     const createdAtUTC = new Date().toISOString().replace('T', ' ').substring(0, 19);
@@ -264,7 +304,7 @@ serve(async (req) => {
       JSON.stringify({
         qrCode: qrCodeUrl,
         copiaCola,
-        transactionId,
+        transactionId: freePayData.data?.id || transactionId,
         status: freePayData.data?.status || 'PENDING',
         externalId: freePayData.data?.id
       }),
