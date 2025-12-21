@@ -256,7 +256,7 @@ const Checkout = () => {
 
           if (!error && data?.status === 'paid') {
             toast.success("Pagamento confirmado!");
-            navigate('/pagamento-aprovado', { state: { transactionId: currentTransactionId, eventData } });
+            navigate('/pagamento-aprovado', { state: { transactionId: currentTransactionId, customerEmail: formData.email } });
           }
         } catch (err) {
           console.error('Error checking payment status:', err);
