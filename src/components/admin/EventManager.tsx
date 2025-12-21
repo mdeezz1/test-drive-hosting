@@ -144,17 +144,18 @@ const EventManager = () => {
     
     setUploading(type);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${type}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const token = getAdminToken();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('token', token || '');
+      formData.append('type', type);
 
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(filePath, file);
+      const { data, error } = await supabase.functions.invoke("admin-upload", {
+        body: formData,
+      });
 
-      if (uploadError) throw uploadError;
-
-      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/event-images/${filePath}`;
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error);
 
       const fieldMap = {
         banner: 'banner_url',
@@ -163,7 +164,7 @@ const EventManager = () => {
         event_map: 'event_map_url'
       };
 
-      setEventForm(prev => ({ ...prev, [fieldMap[type]]: publicUrl }));
+      setEventForm(prev => ({ ...prev, [fieldMap[type]]: data.url }));
       toast({ title: "Sucesso", description: "Imagem enviada com sucesso!" });
     } catch (error) {
       console.error("Error uploading:", error);
@@ -184,17 +185,21 @@ const EventManager = () => {
       
       const blob = await response.blob();
       const fileExt = currentUrl.split('.').pop()?.split('?')[0] || 'jpg';
-      const fileName = `${type}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const file = new File([blob], `${type}-${Date.now()}.${fileExt}`, { type: blob.type });
 
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(filePath, blob);
+      // Use the secure upload function
+      const token = getAdminToken();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('token', token || '');
+      formData.append('type', type);
 
-      if (uploadError) throw uploadError;
+      const { data, error } = await supabase.functions.invoke("admin-upload", {
+        body: formData,
+      });
 
-      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/event-images/${filePath}`;
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error);
 
       const fieldMap = {
         banner: 'banner_url',
@@ -203,7 +208,7 @@ const EventManager = () => {
         event_map: 'event_map_url'
       };
 
-      setEventForm(prev => ({ ...prev, [fieldMap[type]]: publicUrl }));
+      setEventForm(prev => ({ ...prev, [fieldMap[type]]: data.url }));
       toast({ title: "Sucesso", description: "Imagem migrada para o Storage!" });
     } catch (error) {
       console.error("Error migrating image:", error);
