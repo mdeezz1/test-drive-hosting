@@ -234,10 +234,25 @@ const MeusPedidos = () => {
                             <h4 className="font-bold text-yellow-800 text-lg mb-2">
                               Ingresso em Processamento
                             </h4>
-                            <p className="text-yellow-700 mb-4">
+                            <p className="text-yellow-700 mb-3">
                               Em breve você receberá seu ingresso disponível para download (PDF) em seu e-mail 
                               <strong className="block mt-1">{order.customer_email}</strong>
                             </p>
+                            <p className="text-yellow-700 text-sm mb-3">
+                              <strong>Importante:</strong> O tempo de processamento varia dependendo da demanda de clientes do evento adquirido.
+                            </p>
+                            <p className="text-yellow-700 text-sm mb-3">
+                              Se o processo levar mais de <strong>2 horas</strong>, por favor envie o nome utilizado na compra, e-mail e comprovante de pagamento para o WhatsApp:
+                            </p>
+                            <div className="flex flex-col gap-1 text-sm text-yellow-800 font-medium mb-3">
+                              <a href="https://wa.me/5583986396077" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                📱 (83) 98639-6077
+                              </a>
+                              <a href="https://wa.me/5583981340091" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                📱 (83) 8134-0091
+                              </a>
+                              <span className="text-yellow-600 text-xs">(responsáveis por esse evento)</span>
+                            </div>
                             <div className="flex items-center gap-2 text-sm text-yellow-600">
                               <Mail className="h-4 w-4" />
                               <span>Fique atento à sua caixa de entrada e spam</span>
