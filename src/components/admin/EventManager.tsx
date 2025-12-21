@@ -106,6 +106,10 @@ const EventManager = () => {
     is_active: true,
   });
 
+  const getAdminToken = () => {
+    return sessionStorage.getItem("adminToken");
+  };
+
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -113,11 +117,17 @@ const EventManager = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
+      const token = getAdminToken();
       const { data, error } = await supabase.functions.invoke("admin-events", {
-        body: { action: "list_events" },
+        body: { action: "list_events", token },
       });
 
       if (error) throw error;
+      if (!data.success && data.error?.includes("autorizado")) {
+        sessionStorage.removeItem("adminToken");
+        window.location.reload();
+        return;
+      }
       if (data.success) {
         setEvents(data.events || []);
       }
@@ -212,9 +222,10 @@ const EventManager = () => {
     try {
       const action = selectedEvent ? "update_event" : "create_event";
       const eventData = selectedEvent ? { ...eventForm, id: selectedEvent.id } : eventForm;
+      const token = getAdminToken();
 
       const { data, error } = await supabase.functions.invoke("admin-events", {
-        body: { action, data: eventData },
+        body: { action, data: eventData, token },
       });
 
       if (error) throw error;
@@ -234,8 +245,9 @@ const EventManager = () => {
     if (!confirm("Tem certeza que deseja excluir este evento? Todos os ingressos também serão excluídos.")) return;
 
     try {
+      const token = getAdminToken();
       const { data, error } = await supabase.functions.invoke("admin-events", {
-        body: { action: "delete_event", data: { id: eventId } },
+        body: { action: "delete_event", data: { id: eventId }, token },
       });
 
       if (error) throw error;
@@ -272,9 +284,10 @@ const EventManager = () => {
         sort_order: parseInt(ticketForm.sort_order) || 0,
         is_active: ticketForm.is_active,
       };
+      const token = getAdminToken();
 
       const { data, error } = await supabase.functions.invoke("admin-events", {
-        body: { action, data: ticketData },
+        body: { action, data: ticketData, token },
       });
 
       if (error) throw error;
@@ -294,8 +307,9 @@ const EventManager = () => {
     if (!confirm("Tem certeza que deseja excluir este ingresso?")) return;
 
     try {
+      const token = getAdminToken();
       const { data, error } = await supabase.functions.invoke("admin-events", {
-        body: { action: "delete_ticket_type", data: { id: ticketId } },
+        body: { action: "delete_ticket_type", data: { id: ticketId }, token },
       });
 
       if (error) throw error;

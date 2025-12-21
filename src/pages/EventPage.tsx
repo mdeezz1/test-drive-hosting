@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import DOMPurify from "dompurify";
 
 interface TicketType {
   id: string;
@@ -482,7 +483,7 @@ const EventPage = () => {
             <div className="bg-gray-50 rounded-lg p-6">
               <div 
                 className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
-                dangerouslySetInnerHTML={{ __html: event.description }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(event.description) }}
               />
             </div>
           </div>
