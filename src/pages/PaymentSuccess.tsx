@@ -65,6 +65,21 @@ const PaymentSuccess = () => {
                     <strong className="block mt-1">{customerEmail}</strong>
                   )}
                 </p>
+                <p className="text-yellow-700 text-sm mb-3">
+                  <strong>Importante:</strong> O tempo de processamento varia dependendo da demanda de clientes do evento adquirido.
+                </p>
+                <p className="text-yellow-700 text-sm mb-3">
+                  Se o processo levar mais de <strong>2 horas</strong>, por favor envie o nome utilizado na compra, e-mail e comprovante de pagamento para o WhatsApp:
+                </p>
+                <div className="flex flex-col gap-1 text-sm text-yellow-800 font-medium mb-3">
+                  <a href="https://wa.me/5583986396077" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    📱 (83) 98639-6077
+                  </a>
+                  <a href="https://wa.me/5583981340091" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    📱 (83) 8134-0091
+                  </a>
+                  <span className="text-yellow-600 text-xs">(responsáveis por esse evento)</span>
+                </div>
                 <div className="flex items-center gap-2 text-sm text-yellow-600">
                   <Mail className="h-4 w-4" />
                   <span>Verifique sua caixa de entrada e spam</span>
