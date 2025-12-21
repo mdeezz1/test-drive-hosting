@@ -1,24 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Search, Home } from "lucide-react";
+import { CheckCircle, Mail, Home, Clock } from "lucide-react";
 import guichewebLogo from "@/assets/guicheweb-logo.png";
 import guichewebLogoFull from "@/assets/guicheweb-logo-full.png";
-
-interface EventData {
-  name: string;
-  location: string;
-  date: string;
-  time: string;
-  openingTime?: string;
-  coverUrl?: string;
-}
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as { transactionId?: string; eventData?: EventData } | null;
+  const state = location.state as { transactionId?: string; customerEmail?: string } | null;
   const transactionId = state?.transactionId;
-  const eventData = state?.eventData;
+  const customerEmail = state?.customerEmail;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,46 +47,48 @@ const PaymentSuccess = () => {
             </div>
           )}
 
-          {/* Instructions */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 text-left">
-            <h3 className="font-semibold text-green-800 mb-3">
-              Como acessar seus ingressos:
-            </h3>
-            <ol className="space-y-2 text-sm text-green-700">
-              <li className="flex items-start gap-2">
-                <span className="font-bold">1.</span>
-                <span>Clique no botão abaixo para ver seus ingressos</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">2.</span>
-                <span>Ou acesse a página inicial do site e abra o menu</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">3.</span>
-                <span>Clique em "Buscar Pedidos" e digite seu CPF ou e-mail</span>
-              </li>
-            </ol>
+          {/* Ticket Delivery Info */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6 text-left">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-yellow-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-yellow-800 text-lg mb-2">
+                  Aguarde seu Ingresso
+                </h3>
+                <p className="text-yellow-700 mb-3">
+                  Em breve você receberá seu ingresso disponível para download (PDF) em seu e-mail
+                  {customerEmail && (
+                    <strong className="block mt-1">{customerEmail}</strong>
+                  )}
+                </p>
+                <div className="flex items-center gap-2 text-sm text-yellow-600">
+                  <Mail className="h-4 w-4" />
+                  <span>Verifique sua caixa de entrada e spam</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <Button
-              onClick={() => navigate('/meus-pedidos', { state: { fromPayment: true, transactionId, eventData } })}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-lg"
-            >
-              <Search className="h-5 w-5 mr-2" />
-              Ver Meus Ingressos
-            </Button>
-
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="w-full py-6 text-lg border-gray-300 text-gray-700"
-            >
-              <Home className="h-5 w-5 mr-2" />
-              Voltar para Início
-            </Button>
+          {/* Info Box */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8 text-left">
+            <p className="text-sm text-gray-600">
+              Seus ingressos também estarão disponíveis para consulta no site através do menu 
+              <strong> "Buscar Pedidos"</strong> após o processamento.
+            </p>
           </div>
+
+          {/* Action Button */}
+          <Button
+            onClick={() => navigate('/')}
+            className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-6 text-lg"
+          >
+            <Home className="h-5 w-5 mr-2" />
+            Voltar para Início
+          </Button>
         </div>
       </div>
 

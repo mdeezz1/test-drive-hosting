@@ -1,29 +1,16 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowLeft, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Loader2, Mail, Clock, Ticket } from "lucide-react";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import Navbar from "@/components/Navbar";
-import TicketView from "@/components/TicketView";
 import SearchOrdersDialog from "@/components/SearchOrdersDialog";
 import { supabase } from "@/integrations/supabase/client";
-import guichewebTicketCover from "@/assets/guicheweb-ticket-cover.png";
 
 interface OrderItem {
   name: string;
   quantity: number;
   price: number;
-}
-
-interface EventData {
-  name: string;
-  location: string;
-  date: string;
-  time: string;
-  openingTime?: string;
-  coverUrl?: string;
 }
 
 interface Order {
@@ -45,83 +32,28 @@ const MeusPedidos = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
-  const [eventData, setEventData] = useState<EventData | undefined>(undefined);
-  const [resolvedEventData, setResolvedEventData] = useState<EventData | undefined>(undefined);
-  const ticketRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Check if coming from payment success or with orders from search
   useEffect(() => {
     const state = location.state as { 
       orders?: Order[]; 
       fromPayment?: boolean; 
       transactionId?: string;
       searchQuery?: string;
-      eventData?: EventData;
     } | null;
 
-    if (state?.eventData) {
-      setEventData(state.eventData);
-    }
-
     if (state?.orders) {
-      // Parse items if they're strings
       const parsedOrders = state.orders.map(order => ({
         ...order,
         items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
       }));
       setOrders(parsedOrders);
     } else if (state?.fromPayment && state?.transactionId) {
-      // Fetch order by transaction ID
       fetchOrderByTransaction(state.transactionId);
     } else {
-      // Show search dialog if no orders
       setSearchDialogOpen(true);
     }
   }, [location.state]);
-
-  useEffect(() => {
-    if (!eventData?.coverUrl) {
-      setResolvedEventData(eventData);
-      return;
-    }
-
-    let isCancelled = false;
-
-    const convertCoverToDataUrl = async () => {
-      try {
-        const response = await fetch(eventData.coverUrl as string, { mode: "cors" });
-        if (!response.ok) {
-          setResolvedEventData(eventData);
-          return;
-        }
-
-        const blob = await response.blob();
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          if (!isCancelled) {
-            setResolvedEventData({
-              ...eventData,
-              coverUrl: typeof reader.result === "string" ? reader.result : eventData.coverUrl,
-            });
-          }
-        };
-
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error("Erro ao carregar imagem do evento:", error);
-        setResolvedEventData(eventData);
-      }
-    };
-
-    convertCoverToDataUrl();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [eventData]);
 
   const fetchOrderByTransaction = async (transactionId: string) => {
     setIsLoading(true);
@@ -156,346 +88,18 @@ const MeusPedidos = () => {
     }
   };
 
-  const inlineTicketImages = async (ticketElement: HTMLDivElement) => {
-    const images = Array.from(ticketElement.getElementsByTagName("img"));
-
-    await Promise.all(
-      images.map(async (img) => {
-        const src = img.getAttribute("src");
-        if (!src || src.startsWith("data:")) return;
-
-        try {
-          const response = await fetch(src);
-          if (!response.ok) return;
-
-          const blob = await response.blob();
-          const reader = new FileReader();
-
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            reader.onloadend = () => {
-              if (typeof reader.result === "string") {
-                resolve(reader.result);
-              } else {
-                reject(new Error("Falha ao converter imagem para Data URL"));
-              }
-            };
-
-            reader.onerror = () => reject(new Error("Erro ao ler imagem"));
-            reader.readAsDataURL(blob);
-          });
-
-          img.src = dataUrl;
-
-          await new Promise<void>((resolve) => {
-            if (img.complete) {
-              resolve();
-            } else {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }
-          });
-        } catch (error) {
-          console.error("Erro ao preparar imagem para o PDF:", error);
-        }
-      })
-    );
-  };
-
-  const waitForImagesToLoad = async (container: HTMLElement) => {
-    const images = Array.from(container.getElementsByTagName("img"));
-
-    await Promise.all(
-      images.map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if (img.complete && img.naturalWidth !== 0) {
-              resolve();
-              return;
-            }
-
-            const handleDone = () => {
-              img.removeEventListener("load", handleDone);
-              img.removeEventListener("error", handleDone);
-              resolve();
-            };
-
-            img.addEventListener("load", handleDone);
-            img.addEventListener("error", handleDone);
-          })
-      )
-    );
-  };
-
-  const copyQrCanvasToClone = async (
-    original: HTMLDivElement,
-    clone: HTMLDivElement
-  ) => {
-    const originalCanvas = original.querySelector("canvas") as
-      | HTMLCanvasElement
-      | null;
-    const cloneCanvas = clone.querySelector("canvas") as
-      | HTMLCanvasElement
-      | null;
-
-    if (!originalCanvas || !cloneCanvas) return;
-
-    try {
-      const dataUrl = originalCanvas.toDataURL("image/png");
-
-      await new Promise<void>((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          const ctx = cloneCanvas.getContext("2d");
-          if (ctx) {
-            cloneCanvas.width = img.width;
-            cloneCanvas.height = img.height;
-            ctx.clearRect(0, 0, cloneCanvas.width, cloneCanvas.height);
-            ctx.drawImage(img, 0, 0, cloneCanvas.width, cloneCanvas.height);
-          }
-          resolve();
-        };
-        img.onerror = () => resolve();
-        img.src = dataUrl;
-        if (img.complete) {
-          resolve();
-        }
-      });
-    } catch (error) {
-      console.error("Erro ao copiar QR code para o clone:", error);
-    }
-  };
-
-  let fixedCoverDataUrl: string | null = null;
-
-  const getFixedCoverDataUrl = async (): Promise<string | null> => {
-    if (fixedCoverDataUrl) return fixedCoverDataUrl;
-
-    try {
-      const response = await fetch(guichewebTicketCover);
-      if (!response.ok) return null;
-
-      const blob = await response.blob();
-      const reader = new FileReader();
-
-      const dataUrl = await new Promise<string | null>((resolve) => {
-        reader.onloadend = () => {
-          if (typeof reader.result === "string") {
-            resolve(reader.result);
-          } else {
-            resolve(null);
-          }
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      });
-
-      if (dataUrl) {
-        fixedCoverDataUrl = dataUrl;
-      }
-
-      return dataUrl;
-    } catch (error) {
-      console.error("Erro ao carregar capa fixa do PDF:", error);
-      return null;
-    }
-  };
-
-  const generatePDF = async (order: Order, ticketIndex: number) => {
-    setIsGeneratingPdf(true);
-    
-    try {
-      const ticketElement = ticketRefs.current[`${order.id}-${ticketIndex}`];
-      if (!ticketElement) {
-        toast.error("Erro ao gerar PDF");
-        return;
-      }
-
-      // Criar um clone fora da tela com largura fixa para garantir padrão A4
-      const clone = ticketElement.cloneNode(true) as HTMLDivElement;
-      clone.style.position = "fixed";
-      clone.style.left = "-10000px";
-      clone.style.top = "0";
-      clone.style.width = "800px";
-      clone.style.maxWidth = "800px";
-      clone.style.transform = "none";
-      clone.style.backgroundColor = "#ffffff";
-      document.body.appendChild(clone);
-
-      const ticketRoot = clone.querySelector("[data-ticket-root]") as HTMLDivElement | null;
-      if (ticketRoot) {
-        ticketRoot.style.maxWidth = "100%";
-        ticketRoot.style.width = "100%";
-      }
-
-      await copyQrCanvasToClone(ticketElement, clone);
-
-      const fixedCover = await getFixedCoverDataUrl();
-      if (fixedCover) {
-        const coverImg = clone.querySelector('[alt="' + (eventData?.name || resolvedEventData?.name || 'Evento') + '"]') as HTMLImageElement;
-        if (coverImg) {
-          coverImg.src = fixedCover;
-        }
-      }
-
-      await inlineTicketImages(clone);
-      await waitForImagesToLoad(clone);
-
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      document.body.removeChild(clone);
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - margin * 2;
-
-      let imgWidth = maxWidth;
-      let imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      if (imgHeight > maxHeight) {
-        const scaleFactor = maxHeight / imgHeight;
-        imgWidth = imgWidth * scaleFactor;
-        imgHeight = imgHeight * scaleFactor;
-      }
-
-      const x = (pageWidth - imgWidth) / 2;
-      const y = margin;
-
-      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-
-      pdf.save(`ingresso-${order.transaction_id}-${ticketIndex + 1}.pdf`);
-      
-      toast.success("PDF gerado com sucesso!");
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      toast.error("Erro ao gerar PDF");
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
-
-  const generateAllPDFs = async (order: Order) => {
-    setIsGeneratingPdf(true);
-    
-    try {
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const fixedCover = await getFixedCoverDataUrl();
-      const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - margin * 2;
-
-      const totalTickets = order.items.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      
-      for (let i = 0; i < totalTickets; i++) {
-        const ticketElement = ticketRefs.current[`${order.id}-${i}`];
-        if (!ticketElement) continue;
-
-        // Criar um clone fora da tela com largura fixa para garantir padrão A4
-        const clone = ticketElement.cloneNode(true) as HTMLDivElement;
-        clone.style.position = "fixed";
-        clone.style.left = "-10000px";
-        clone.style.top = "0";
-        clone.style.width = "800px";
-        clone.style.maxWidth = "800px";
-        clone.style.transform = "none";
-        clone.style.backgroundColor = "#ffffff";
-        document.body.appendChild(clone);
-
-        const ticketRoot = clone.querySelector("[data-ticket-root]") as HTMLDivElement | null;
-        if (ticketRoot) {
-          ticketRoot.style.maxWidth = "100%";
-          ticketRoot.style.width = "100%";
-        }
-
-        await copyQrCanvasToClone(ticketElement, clone);
-
-        if (fixedCover) {
-          const coverImg = clone.querySelector('[alt="' + (eventData?.name || resolvedEventData?.name || 'Evento') + '"]') as HTMLImageElement;
-          if (coverImg) {
-            coverImg.src = fixedCover;
-          }
-        }
-
-        await inlineTicketImages(clone);
-        await waitForImagesToLoad(clone);
-
-        const canvas = await html2canvas(clone, {
-          scale: 2,
-          backgroundColor: "#ffffff",
-        });
-
-        document.body.removeChild(clone);
-
-        const imgData = canvas.toDataURL("image/png");
-
-        let imgWidth = maxWidth;
-        let imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        if (imgHeight > maxHeight) {
-          const scaleFactor = maxHeight / imgHeight;
-          imgWidth = imgWidth * scaleFactor;
-          imgHeight = imgHeight * scaleFactor;
-        }
-
-        const x = (pageWidth - imgWidth) / 2;
-        const y = margin;
-
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-      }
-
-      pdf.save(`ingressos-${order.transaction_id}.pdf`);
-      toast.success("Todos os ingressos foram gerados!");
-    } catch (err) {
-      console.error("Error generating PDFs:", err);
-      toast.error("Erro ao gerar PDFs");
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
-
-  // Expand items into individual tickets
-  const expandOrderToTickets = (order: Order) => {
-    const tickets: { order: Order; itemIndex: number; ticketIndex: number; item: OrderItem }[] = [];
-    let globalTicketIndex = 0;
-
-    order.items.forEach((item, itemIndex) => {
-      for (let i = 0; i < item.quantity; i++) {
-        tickets.push({
-          order,
-          itemIndex,
-          ticketIndex: globalTicketIndex,
-          item,
-        });
-        globalTicketIndex++;
-      }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
+  };
 
-    return tickets;
+  const getTotalTickets = (items: OrderItem[]) => {
+    return items.reduce((sum, item) => sum + item.quantity, 0);
   };
 
   if (isLoading) {
@@ -517,7 +121,7 @@ const MeusPedidos = () => {
       <Navbar />
       
       <div className="pt-20 pb-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-2xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div className="flex items-center gap-4">
@@ -559,67 +163,99 @@ const MeusPedidos = () => {
               </Button>
             </div>
           ) : (
-            orders.map((order) => {
-              const tickets = expandOrderToTickets(order);
-              const totalTickets = tickets.length;
+            <div className="space-y-6">
+              {orders.map((order) => {
+                const totalTickets = getTotalTickets(order.items);
 
-              return (
-                <div key={order.id} className="mb-8">
-                  {/* Order Header */}
-                  <div className="bg-white rounded-t-lg shadow-sm border border-b-0 p-4">
-                    <h2 className="font-bold text-lg text-gray-800">
-                      Pedido #{order.transaction_id}
-                    </h2>
-                    <p className="text-sm text-gray-600">
-                      {totalTickets} ingresso{totalTickets > 1 ? 's' : ''} • Total: R$ {order.total_amount.toFixed(2).replace('.', ',')}
-                    </p>
-                  </div>
-
-                  {/* Tickets */}
-                  <div className="space-y-4">
-                    {tickets.map(({ ticketIndex, item }) => (
-                      <div key={`${order.id}-${ticketIndex}`} className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                        {/* Download Button */}
-                        <div className="bg-gray-50 border-b p-4 flex justify-end">
-                          <Button
-                            onClick={() => generatePDF(order, ticketIndex)}
-                            disabled={isGeneratingPdf}
-                            variant="outline"
-                            className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                          >
-                            {isGeneratingPdf ? (
-                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                            ) : (
-                              <Download className="h-5 w-5 mr-2" />
-                            )}
-                            Baixar Este Ingresso
-                          </Button>
+                return (
+                  <div key={order.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    {/* Order Header */}
+                    <div className="bg-gray-50 border-b p-4">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                          <h2 className="font-bold text-lg text-gray-800">
+                            Pedido #{order.transaction_id}
+                          </h2>
+                          <p className="text-sm text-gray-600">
+                            {formatDate(order.created_at)}
+                          </p>
                         </div>
-
-                        {/* Ticket Content */}
-                        <div 
-                          ref={(el) => ticketRefs.current[`${order.id}-${ticketIndex}`] = el}
-                        >
-                          <TicketView
-                            orderId={order.id}
-                            transactionId={order.transaction_id}
-                            customerName={order.customer_name}
-                            customerCpf={order.customer_cpf}
-                            customerEmail={order.customer_email}
-                            items={[{ ...item, quantity: 1 }]}
-                            totalAmount={item.price}
-                            paidAt={order.updated_at}
-                            ticketIndex={ticketIndex}
-                            totalTickets={totalTickets}
-                            eventData={resolvedEventData ?? eventData}
-                          />
+                        <div className="text-right">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                            order.status === 'approved' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.status === 'approved' ? 'Aprovado' : 'Pendente'}
+                          </span>
                         </div>
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Order Details */}
+                    <div className="p-6">
+                      {/* Customer Info */}
+                      <div className="mb-6">
+                        <h3 className="font-semibold text-gray-800 mb-2">Dados do Comprador</h3>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p><strong>Nome:</strong> {order.customer_name}</p>
+                          <p><strong>E-mail:</strong> {order.customer_email}</p>
+                        </div>
+                      </div>
+
+                      {/* Items */}
+                      <div className="mb-6">
+                        <h3 className="font-semibold text-gray-800 mb-2">Itens do Pedido</h3>
+                        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                          {order.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span className="text-gray-700">{item.quantity}x {item.name}</span>
+                              <span className="font-medium text-gray-800">
+                                R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
+                              </span>
+                            </div>
+                          ))}
+                          <div className="border-t pt-2 mt-2 flex justify-between font-bold">
+                            <span>Total ({totalTickets} ingresso{totalTickets > 1 ? 's' : ''})</span>
+                            <span>R$ {order.total_amount.toFixed(2).replace('.', ',')}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Pending Ticket Message */}
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                              <Clock className="h-6 w-6 text-yellow-600" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-yellow-800 text-lg mb-2">
+                              Ingresso em Processamento
+                            </h4>
+                            <p className="text-yellow-700 mb-4">
+                              Em breve você receberá seu ingresso disponível para download (PDF) em seu e-mail 
+                              <strong className="block mt-1">{order.customer_email}</strong>
+                            </p>
+                            <div className="flex items-center gap-2 text-sm text-yellow-600">
+                              <Mail className="h-4 w-4" />
+                              <span>Fique atento à sua caixa de entrada e spam</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Info */}
+                      <div className="mt-6 flex items-center gap-3 text-sm text-gray-500">
+                        <Ticket className="h-5 w-5" />
+                        <span>Seus ingressos também estarão disponíveis aqui no site após o processamento</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
