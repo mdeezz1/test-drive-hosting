@@ -12,5 +12,8 @@ verify_jwt = false
 [functions.admin-events]
 verify_jwt = false
 
+[functions.admin-upload]
+verify_jwt = false
+
 [functions.image-proxy]
 verify_jwt = false
